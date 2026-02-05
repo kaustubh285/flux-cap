@@ -1,6 +1,6 @@
 import fs from "fs";
 import { FLUX_BRAIN_DUMP_PATH, FLUX_CONFIG_PATH, FLUX_DEFAULT_CONFIG, FLUX_FOLDER_PATH, FLUX_SESSION_PATH } from "../utils/constants";
-import { createIfNotExists } from "../utils/lib";
+import { createIfNotExists } from "../utils/";
 
 export async function initFluxCommand() {
 	console.log("Initializing Flux Capacitor...");
@@ -8,13 +8,40 @@ export async function initFluxCommand() {
 	// CRITICAL SECTION
 	try {
 		// Check if .flux folder exists
-		createIfNotExists(FLUX_FOLDER_PATH, 'directory');
-		createIfNotExists(FLUX_BRAIN_DUMP_PATH, 'directory');
-		createIfNotExists(FLUX_SESSION_PATH, 'directory');
+		await createIfNotExists(FLUX_FOLDER_PATH, 'directory');
+		await createIfNotExists(FLUX_BRAIN_DUMP_PATH, 'directory');
+		await createIfNotExists(FLUX_SESSION_PATH, 'directory');
 
 
 		// Check if config.json exists
-		createIfNotExists(FLUX_CONFIG_PATH, 'file', JSON.stringify(FLUX_DEFAULT_CONFIG, null, 4));
+		const config = FLUX_DEFAULT_CONFIG
+
+		const workingDirData = prompt("Do you want to include your current working directory in logs? (y/n)")
+		if (workingDirData && workingDirData.toLowerCase() === 'y') {
+			config.privacy.hideWorkingDir = false
+		}
+		else {
+			config.privacy.hideWorkingDir = true
+		}
+
+		const branchNameData = prompt("Do you want to include your git branch name in logs? (y/n)")
+		if (branchNameData && branchNameData.toLowerCase() === 'y') {
+			config.privacy.hideBranchName = false
+		}
+		else {
+			config.privacy.hideBranchName = true
+		}
+
+		const uncommittedChangesData = prompt("Do you want to include uncommitted git changes in logs? (y/n)")
+		if (uncommittedChangesData && uncommittedChangesData.toLowerCase() === 'y') {
+			config.privacy.hideUncommittedChanges = false
+		}
+		else {
+			config.privacy.hideUncommittedChanges = true
+		}
+		await createIfNotExists(FLUX_CONFIG_PATH, 'file', JSON.stringify(config, null, 4));
+
+		console.log("If you want to customize your configuration, you can edit the config.json file located in the .flux directory.");
 	}
 	catch (error) {
 		console.error("Error during initialization:", error);

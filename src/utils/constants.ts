@@ -13,5 +13,14 @@ export const FLUX_DEFAULT_CONFIG: FluxConfig = {
 	defaultFocusDuration: 1500, // 25 minutes
 	todoKeywords: ["TODO", "FIXME", "BUG", "OPTIMIZE", "HACK"],
 	notifications: true,
-	theme: "minimal"
+	theme: "minimal",
+	privacy: {
+		hideWorkingDir: false,
+		hideBranchName: false,
+		hideUncommittedChanges: false,
+	}
 };
+
+export const FLUX_DEFAULT_BRAIN_DUMP_CONTENT = {
+	fluxVersion: "0.0.1",
+}
