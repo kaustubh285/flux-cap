@@ -4,6 +4,7 @@ export type FluxConfig = {
 	todoKeywords: string[];
 	notifications: boolean;
 	theme: "minimal";
+	sorted: boolean;
 	privacy: {
 		hideWorkingDir: boolean;
 		hideBranchName: boolean;

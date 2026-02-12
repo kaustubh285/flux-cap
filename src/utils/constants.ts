@@ -14,6 +14,7 @@ export const FLUX_DEFAULT_CONFIG: FluxConfig = {
 	todoKeywords: ["TODO", "FIXME", "BUG", "OPTIMIZE", "HACK"],
 	notifications: true,
 	theme: "minimal",
+	sorted: true,
 	privacy: {
 		hideWorkingDir: false,
 		hideBranchName: false,
