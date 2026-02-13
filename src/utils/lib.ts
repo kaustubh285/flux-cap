@@ -5,7 +5,6 @@ import { execSync } from 'child_process';
 export async function createIfNotExists(folderPath: string, type: 'file' | 'directory', data?: any): Promise<void> {
 	try {
 		const fs = await import("fs");
-
 		if (!fs.existsSync(folderPath)) {
 			if (type === 'file') {
 				fs.writeFileSync(folderPath, data || '');
@@ -15,6 +14,28 @@ export async function createIfNotExists(folderPath: string, type: 'file' | 'dire
 			fs.mkdirSync(folderPath, { recursive: true });
 			// console.log(`Created directory: ${folderPath}`);
 		} else {
+			if (type === 'file') {
+				try {
+					const stats = fs.statSync(folderPath);
+					if (stats.size === 0 && data) {
+						// File exists but is empty
+						fs.writeFileSync(folderPath, data);
+					}
+				} catch (writeError: any) {
+					if (writeError.code === 'EACCES' || writeError.code === 'EPERM') {
+						throw new Error(`No write permissions for file: ${folderPath}`);
+					}
+					throw writeError;
+				}
+			} else {
+				try {
+					fs.accessSync(folderPath, fs.constants.W_OK);
+				} catch (accessError: any) {
+					if (accessError.code === 'EACCES' || accessError.code === 'EPERM') {
+						throw new Error(`No write permissions for directory: ${folderPath}`);
+					}
+				}
+			}
 			// console.log(`${type} already exists: ${folderPath}`);
 		}
 	} catch (error) {

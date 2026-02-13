@@ -19,6 +19,14 @@ export const FLUX_DEFAULT_CONFIG: FluxConfig = {
 		hideWorkingDir: false,
 		hideBranchName: false,
 		hideUncommittedChanges: false,
+	},
+	search: {
+		searchFields: ["message", "workingDir", "branch", "tags"],
+		resultLimit: 10,
+		fuseOptions: {
+			threshold: 0.3,
+			includeScore: true
+		}
 	}
 };
 

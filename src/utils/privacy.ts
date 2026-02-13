@@ -7,7 +7,7 @@ export function getGitUncommittedChanges(config: FluxConfig): boolean {
 	}
 	try {
 		const status = execSync('git status --porcelain',
-			{ encoding: 'utf8', cwd: process.cwd() }
+			{ encoding: 'utf8', cwd: process.cwd(), timeout: 1000 }
 		).trim();
 		return status.length > 0;
 	} catch (error) {
@@ -26,7 +26,7 @@ export function getCurrentBranch(config: FluxConfig): string | null {
 	}
 	try {
 		const branch = execSync('git rev-parse --abbrev-ref HEAD',
-			{ encoding: 'utf8', cwd: process.cwd() }
+			{ encoding: 'utf8', cwd: process.cwd(), timeout: 1000 }
 		).trim();
 		return branch;
 	} catch (error) {

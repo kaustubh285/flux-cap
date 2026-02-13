@@ -85,6 +85,12 @@ export async function initFluxCommand() {
 export const resetFluxCommand = () => {
 	console.log("Resetting Flux Capacitor...");
 
+	const confirmation = prompt("Are you sure you want to reset Flux Capacitor? This will delete all your brain dumps and sessions. (y/n)");
+	if (!confirmation || confirmation.toLowerCase() !== 'y') {
+		console.log("Reset cancelled.");
+		return;
+	}
+
 	try {
 		if (fs.existsSync(FLUX_FOLDER_PATH)) {
 			fs.rmSync(FLUX_FOLDER_PATH, { recursive: true, force: true });

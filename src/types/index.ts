@@ -9,6 +9,14 @@ export type FluxConfig = {
 		hideWorkingDir: boolean;
 		hideBranchName: boolean;
 		hideUncommittedChanges: boolean;
+	},
+	search: {
+		searchFields: ("message" | "workingDir" | "branch" | "tags")[];
+		resultLimit: number | null;
+		fuseOptions?: {
+			threshold: number,
+			includeScore: boolean
+		}
 	}
 };
 

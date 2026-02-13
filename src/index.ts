@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import { initFluxCommand, resetFluxCommand } from "./commands/init.command";
 import { brainDumpAddCommand } from "./commands/dump.command";
+import { searchBrainDumpCommand } from "./commands/search.command";
 
 const program = new Command()
 
@@ -18,11 +19,9 @@ program.command('dump <message...>')
 	.description('Initialize flux in the current repository')
 	.action(brainDumpAddCommand)
 
-program.command('split')
-	.argument('<parts...>', 'string to split (space‑separated tokens)')
-	.action((parts, options) => {
-		const str = parts.join(' ');
-		console.log(str.split(options.separator ?? ','));
-	});
+program.command('search <query...>')
+	.description('Initialize flux in the current repository')
+	.action(searchBrainDumpCommand)
+
 
 program.parse(process.argv);
