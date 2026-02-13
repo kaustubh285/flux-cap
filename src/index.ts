@@ -2,6 +2,7 @@ import { Command } from "commander";
 import { initFluxCommand, resetFluxCommand } from "./commands/init.command";
 import { brainDumpAddCommand } from "./commands/dump.command";
 import { searchBrainDumpCommand } from "./commands/search.command";
+import { configCommand } from "./commands/config.command";
 
 const program = new Command()
 
@@ -16,12 +17,17 @@ program.command('reset')
 	.action(resetFluxCommand)
 
 program.command('dump <message...>')
-	.description('Initialize flux in the current repository')
+	.description('Add a brain dump with a message. You can also include tags by using #tag in the message.')
 	.action(brainDumpAddCommand)
 
-program.command('search <query...>')
-	.description('Initialize flux in the current repository')
-	.action(searchBrainDumpCommand)
+program.command('search [query...]')
+	.description('Search brain dumps with a query. If no query is provided, lists all brain dumps for the current month.')
+	.action((query?: string[]) => {
+		searchBrainDumpCommand(query ? query : [""]);
+	})
 
+program.command('config <fields...>')
+	.description('Update configuration fields. Example: flux config search.limit 10')
+	.action(configCommand)
 
 program.parse(process.argv);
