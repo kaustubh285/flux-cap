@@ -34,51 +34,96 @@ flux-cap is a terminal-native tool that captures your thoughts, tracks your cont
 
 ## Installation
 
+Install flux-cap globally using your preferred package manager:
+
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/flux-cap
-cd flux-cap
+# Using npm
+npm install -g @dev_desh/flux-cap
 
-# Install dependencies
-bun install
+# Using pnpm  
+pnpm install -g @dev_desh/flux-cap
 
-# Run locally
-bun run dev <command>
+# Using bun
+bun install -g @dev_desh/flux-cap
 ```
 
 ## Quick Start
 
 ### 1. Initialize flux-cap in your project
 ```bash
-bun run dev init
+flux init
 ```
 *Interactive setup will ask about your privacy preferences*
 
 ### 2. Start capturing thoughts
 ```bash
-bun run dev dump "remember to add error handling to auth module"
-bun run dev dump "bug in user validation - check line 42"
-bun run dev dump "idea: add dark mode toggle"
+flux dump "remember to add error handling to auth module"
+flux dump "bug in user validation - check line 42" 
+flux dump "idea: add dark mode toggle"
 ```
 
 ### 3. Search your brain dumps
 ```bash
 # Search with a query
-bun run dev search "auth"
+flux search "auth"
 
 # List recent dumps (no query)
-bun run dev search
+flux search
 ```
 
 ## Commands
 
 | Command | Description | Example |
 |---------|-------------|---------|
-| `flux init` | Initialize flux-cap with privacy setup | `bun run dev init` |
-| `flux dump <message...>` | Capture a brain dump | `bun run dev dump "fix the bug in auth.ts"` |
-| `flux search [query...]` | Search brain dumps or list recent ones | `bun run dev search "authentication"` |
-| `flux config <fields...>` | View or update configuration | `bun run dev config` |
-| `flux reset` | Complete reset (deletes all data) | `bun run dev reset` |
+| `flux init` | Initialize flux-cap with privacy setup | `flux init` |
+| `flux dump <message...>` | Capture a brain dump | `flux dump "fix the bug in auth.ts"` |
+| `flux search [query...]` | Search brain dumps or list recent ones | `flux search "authentication"` |
+| `flux config <fields...>` | View or update configuration | `flux config` |
+| `flux reset` | Complete reset (deletes all data) | `flux reset` |
+
+## Use Cases
+
+### Context Switching
+```bash
+# Before switching tasks
+flux dump "was working on user auth, next: add validation to login form"
+
+# After interruption  
+flux search "auth"  # Quickly find where you left off
+```
+
+### Bug Tracking
+```bash
+flux dump "weird bug in payment flow - users can't checkout"
+flux dump "bug seems related to session timeout"
+
+# Later...
+flux search "payment bug"
+```
+
+### Idea Capture
+```bash
+flux dump "idea: add keyboard shortcuts to dashboard" 
+flux dump "maybe use React.memo for performance optimization"
+```
+
+## Development
+
+Want to contribute or run locally?
+
+```bash
+# Clone and setup
+git clone https://github.com/yourusername/flux-cap
+cd flux-cap
+bun install
+
+# Run in development mode
+bun run dev <command>
+
+# Build and test locally  
+bun run build
+npm link
+```
 
 ## Configuration
 

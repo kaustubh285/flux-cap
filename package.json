@@ -14,6 +14,7 @@
 		"build": "bun build src/index.ts --outdir dist --target node --format esm",
 		"dev": "bun run src/index.ts",
 		"prepublishOnly": "bun run build",
+		"publish": "npm publish --access=public",
 		"local-install": "bun run build && npm link",
 		"local-uninstall": "npm unlink -g flux-cap"
 	},
