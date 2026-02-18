@@ -1,6 +1,6 @@
 {
 	"name": "@dev_desh/flux-cap",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "Git-aware CLI context manager for ADHD developers",
 	"bin": {
 		"flux": "./dist/index.js"
