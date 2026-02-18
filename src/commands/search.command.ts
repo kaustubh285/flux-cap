@@ -1,5 +1,5 @@
 import Fuse from "fuse.js"
-import { FLUX_BRAIN_DUMP_PATH, getConfigFile, getMonthString } from "../utils";
+import { FLUX_BRAIN_DUMP_PATH, getAllBrainDumpFilePaths, getConfigFile, getMonthString, searchResultFormat } from "../utils";
 import { createFuseInstance } from "../utils/fuse.instance";
 import type { BrainDump } from "../types";
 import fs from "fs";
@@ -10,29 +10,50 @@ export async function searchBrainDumpCommand(query: string[]) {
 	const config = await getConfigFile();
 	const monthString = getMonthString();
 
-	const data: { dumps: BrainDump[] } = JSON.parse(fs.readFileSync(`${FLUX_BRAIN_DUMP_PATH}/${monthString}.json`, 'utf8'));
+	let searchResults = []
+	const allFilePaths = await getAllBrainDumpFilePaths();
 
-	const fuse = createFuseInstance(data.dumps, config)
+	for await (const filePath of allFilePaths) {
+		const fileData: { dumps: BrainDump[] } = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+		const fuse = createFuseInstance(fileData.dumps, config);
+		const results = fuse.search(query.join(' '));
+		searchResults.push(...results);
+		if (searchResults.length > 30) {
+			break;
+		}
+	}
 
 	if (query.length > 0) {
-		const searchResults = fuse.search(query.join(' '));
 		if (searchResults.length === 0) {
 			console.log("No brain dumps found matching the query.");
 			return;
 		}
-		console.log(`Found ${searchResults.length} brain dumps matching the query:`);
-		searchResults.forEach((result, index) => {
+
+		const resultLimit = config?.search?.resultLimit || 10;
+		const limitedResults = searchResults.slice(0, resultLimit);
+		console.log(`Found ${searchResults.length} brain dumps matching the query${searchResults.length > resultLimit ? ` (showing first ${resultLimit})` : ''}:`);
+		limitedResults.forEach((result, index) => {
 			const dump = result.item;
-			console.log(`${index + 1}. [${result.score?.toFixed(4) || '0.0000'}] [${dump.timestamp}] ${dump.message}`);
+			console.log(searchResultFormat({ index: index, timestamp: dump.timestamp, message: dump.message, score: result.score?.toFixed(2) }))
 		});
 	} else {
-		if (data.dumps.length === 0) {
-			console.log("No brain dumps found for this month.");
-			return;
+		const resultLimit = config?.search?.resultLimit || 3;
+		let totalCount = 0;
+
+		for await (const filePath of allFilePaths) {
+			if (totalCount >= resultLimit) {
+				break;
+			}
+
+			const fileData: { dumps: BrainDump[] } = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+			for (let i = 0; i < fileData.dumps.length && totalCount < resultLimit; i++) {
+				const dump = fileData.dumps[i];
+				if (!dump || !dump.message || dump.message.trim() === '') {
+					continue;
+				}
+				totalCount += 1;
+				console.log(searchResultFormat({ index: totalCount, timestamp: dump.timestamp, message: dump.message, score: '0.00' }))
+			}
 		}
-		console.log(`Listing all ${data.dumps.length} brain dumps for this month:`);
-		data.dumps.forEach((dump, index) => {
-			console.log(`${index + 1}. [${dump.timestamp}] ${dump.message}`);
-		});
 	}
 }

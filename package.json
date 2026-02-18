@@ -1,21 +1,39 @@
 {
 	"name": "flux-cap",
-	"module": "src/index.ts",
+	"version": "0.1.0",
 	"type": "module",
-	"version": "0.0.1",
-	"license": "MIT",
-	"author": "Kaustubh Deshpande <me@kaustubhdeshpande>",
+	"description": "Git-aware CLI context manager for ADHD developers",
+	"bin": {
+		"flux": "./dist/index.js"
+	},
+	"files": [
+		"dist/**/*",
+		"README.md",
+		"LICENSE"
+	],
 	"scripts": {
-		"dev": "bun run src/index.ts"
+		"build": "bun build src/index.ts --outdir dist --target node --format esm",
+		"dev": "bun run src/index.ts",
+		"prepublishOnly": "bun run build",
+		"local-install": "bun run build && npm link",
+		"local-uninstall": "npm unlink -g flux-cap"
+	},
+	"engines": {
+		"node": ">=18.0.0"
+	},
+	"keywords": [
+		"cli",
+		"productivity",
+		"adhd",
+		"git",
+		"context-switching",
+		"brain-dump",
+		"developer-tools"
+	],
+	"dependencies": {
+		"inquirer": "^13.2.5"
 	},
 	"devDependencies": {
-		"@types/bun": "latest"
-	},
-	"peerDependencies": {
-		"typescript": "^5"
-	},
-	"dependencies": {
-		"commander": "^14.0.3",
-		"fuse.js": "^7.1.0"
+		"@types/inquirer": "^9.0.9"
 	}
 }

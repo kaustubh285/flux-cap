@@ -2,6 +2,7 @@ import { getConfigFile } from "../utils/lib";
 
 // TODO: Still to be implemented
 export async function configCommand(fields: string[]) {
+	console.log("This command is still to be implemented");
 	const fs = await import("fs");
 	const config = await getConfigFile();
 

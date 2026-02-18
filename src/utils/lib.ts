@@ -60,3 +60,10 @@ export async function getConfigFile(): Promise<FluxConfig> {
 	let config: FluxConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 	return config;
 }
+
+export async function getAllBrainDumpFilePaths(): Promise<string[]> {
+	const fs = await import("fs");
+	const path = await import("path");
+	const files = fs.readdirSync(FLUX_BRAIN_DUMP_PATH);
+	return files.filter(file => file.endsWith(".json")).map(file => path.join(FLUX_BRAIN_DUMP_PATH, file));
+}

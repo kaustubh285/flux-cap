@@ -1,6 +1,7 @@
 import fs from "fs";
 import { FLUX_BRAIN_DUMP_PATH, FLUX_CONFIG_PATH, FLUX_DEFAULT_CONFIG, FLUX_FOLDER_PATH, FLUX_SESSION_PATH } from "../utils/constants";
 import { createIfNotExists } from "../utils/";
+import inquirer from "inquirer";
 
 export async function initFluxCommand() {
 	console.log("Initializing Flux Capacitor...");
@@ -16,29 +17,33 @@ export async function initFluxCommand() {
 		// Check if config.json exists
 		const config = FLUX_DEFAULT_CONFIG
 
-		const workingDirData = prompt("Do you want to include your current working directory in logs? (y/n)")
-		if (workingDirData && workingDirData.toLowerCase() === 'y') {
-			config.privacy.hideWorkingDir = false
-		}
-		else {
-			config.privacy.hideWorkingDir = true
-		}
+		const answers = await inquirer.prompt([
+			{
+				type: 'confirm',
+				name: 'includeWorkingDir',
+				message: 'Include your current working directory in logs?',
+				default: true
+			},
+			{
+				type: 'confirm',
+				name: 'includeBranch',
+				message: 'Include your git branch name in logs?',
+				default: true
+			},
+			{
+				type: 'confirm',
+				name: 'includeUncommitted',
+				message: 'Include uncommitted git changes in logs?',
+				default: true
+			}
+		]);
 
-		const branchNameData = prompt("Do you want to include your git branch name in logs? (y/n)")
-		if (branchNameData && branchNameData.toLowerCase() === 'y') {
-			config.privacy.hideBranchName = false
-		}
-		else {
-			config.privacy.hideBranchName = true
-		}
+		config.privacy.hideWorkingDir = !answers.includeWorkingDir;
+		config.privacy.hideBranchName = !answers.includeBranch;
+		config.privacy.hideUncommittedChanges = !answers.includeUncommitted;
 
-		const uncommittedChangesData = prompt("Do you want to include uncommitted git changes in logs? (y/n)")
-		if (uncommittedChangesData && uncommittedChangesData.toLowerCase() === 'y') {
-			config.privacy.hideUncommittedChanges = false
-		}
-		else {
-			config.privacy.hideUncommittedChanges = true
-		}
+
+
 		await createIfNotExists(FLUX_CONFIG_PATH, 'file', JSON.stringify(config, null, 4));
 
 		console.log("If you want to customize your configuration, you can edit the config.json file located in the .flux directory.");
@@ -78,15 +83,22 @@ export async function initFluxCommand() {
 		console.error(`Error during git setup: ${error}. \n You may need to manually add .flux/ to your .gitignore file.`);
 	}
 
+	console.log(`Flux Cap folder structure created at ${FLUX_FOLDER_PATH}, with cwd as ${process.cwd()}`);
 	console.log("Flux Capacitor initialized successfully!");
 }
 
 
-export const resetFluxCommand = () => {
+export const resetFluxCommand = async () => {
 	console.log("Resetting Flux Capacitor...");
 
-	const confirmation = prompt("Are you sure you want to reset Flux Capacitor? This will delete all your brain dumps and sessions. (y/n)");
-	if (!confirmation || confirmation.toLowerCase() !== 'y') {
+	const { confirmed } = await inquirer.prompt([{
+		type: 'confirm',
+		name: 'confirmed',
+		message: 'Are you sure? This will delete all your brain dumps and sessions.',
+		default: false
+	}]);
+
+	if (!confirmed) {
 		console.log("Reset cancelled.");
 		return;
 	}
