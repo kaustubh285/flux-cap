@@ -6,32 +6,6 @@
 
 flux-cap is a terminal-native tool that captures your thoughts, tracks your context, and integrates seamlessly with your git workflow. Built specifically for developers who context-switch frequently.
 
-## Features
-
-### Brain Dump System
-- Instantly capture thoughts without breaking flow: `flux dump "fix auth validation bug"`
-- Git-aware context tracking (branch, working directory, uncommitted changes)
-- Monthly file organization for easy browsing
-- Privacy-first design - you control what gets tracked
-
-### Search
-- Fuzzy search across all your brain dumps: `flux search "auth"`
-- Configurable search fields (message, branch, working directory)
-- Result ranking with relevance scores
-- Multi-month search with automatic limits
-
-### Privacy Controls
-- Choose what information to track during setup
-- Hide working directory paths, branch names, or git status
-- All data stored locally in human-readable JSON
-- Edit or delete your data anytime
-
-### Git Integration
-- Automatic branch context detection
-- Uncommitted changes tracking
-- .gitignore management
-- Works in non-git directories too
-
 ## Installation
 
 Install flux-cap globally using your preferred package manager:
@@ -70,6 +44,34 @@ flux search "auth"
 # List recent dumps (no query)
 flux search
 ```
+
+
+## Features
+
+### Brain Dump System
+- Instantly capture thoughts without breaking flow: `flux dump "fix auth validation bug"`
+- Git-aware context tracking (branch, working directory, uncommitted changes)
+- Monthly file organization for easy browsing
+- Privacy-first design - you control what gets tracked
+
+### Search
+- Fuzzy search across all your brain dumps: `flux search "auth"`
+- Configurable search fields (message, branch, working directory)
+- Result ranking with relevance scores
+- Multi-month search with automatic limits
+
+### Privacy Controls
+- Choose what information to track during setup
+- Hide working directory paths, branch names, or git status
+- All data stored locally in human-readable JSON
+- Edit or delete your data anytime
+
+### Git Integration
+- Automatic branch context detection
+- Uncommitted changes tracking
+- .gitignore management
+- Works in non-git directories too
+
 
 ## Commands
 
