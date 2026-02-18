@@ -5,10 +5,10 @@ import { brainDumpAddCommand } from "./commands/dump.command";
 import { searchBrainDumpCommand } from "./commands/search.command";
 import { configCommand } from "./commands/config.command";
 import { helpOption } from "./commands/flux.option";
-
+import packageJson from "../package.json"
 const program = new Command()
 
-program.name(`flux`).description('Git-aware CLI context manager for ADHD developers').version('0.1.0');
+program.name(`flux`).description('Git-aware CLI context manager for ADHD developers').version(packageJson.version);
 
 program.command('init')
 	.description('Initialize flux in the current repository')
