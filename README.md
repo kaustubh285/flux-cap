@@ -1,4 +1,4 @@
-# 🍅 flux-cap
+# flux-cap
 
 **A git-aware CLI context manager for ADHD developers**
 
@@ -6,33 +6,33 @@
 
 flux-cap is a terminal-native tool that captures your thoughts, tracks your context, and integrates seamlessly with your git workflow. Built specifically for developers who context-switch frequently.
 
-## ✨ Features
+## Features
 
-### 🧠 **Brain Dump System**
+### Brain Dump System
 - Instantly capture thoughts without breaking flow: `flux dump "fix auth validation bug"`
 - Git-aware context tracking (branch, working directory, uncommitted changes)
 - Monthly file organization for easy browsing
 - Privacy-first design - you control what gets tracked
 
-### 🔍 **Intelligent Search** 
+### Search
 - Fuzzy search across all your brain dumps: `flux search "auth"`
 - Configurable search fields (message, branch, working directory)
-- Smart result ranking with relevance scores
+- Result ranking with relevance scores
 - Multi-month search with automatic limits
 
-### 🔒 **Privacy Controls**
+### Privacy Controls
 - Choose what information to track during setup
 - Hide working directory paths, branch names, or git status
 - All data stored locally in human-readable JSON
 - Edit or delete your data anytime
 
-### 🚀 **Git Integration**
+### Git Integration
 - Automatic branch context detection
 - Uncommitted changes tracking
-- Smart .gitignore management
+- .gitignore management
 - Works in non-git directories too
 
-## 📦 Installation
+## Installation
 
 ```bash
 # Clone the repository
@@ -46,7 +46,7 @@ bun install
 bun run dev <command>
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Initialize flux-cap in your project
 ```bash
@@ -70,7 +70,7 @@ bun run dev search "auth"
 bun run dev search
 ```
 
-## 📚 Commands
+## Commands
 
 | Command | Description | Example |
 |---------|-------------|---------|
@@ -80,7 +80,7 @@ bun run dev search
 | `flux config <fields...>` | View or update configuration | `bun run dev config` |
 | `flux reset` | Complete reset (deletes all data) | `bun run dev reset` |
 
-## ⚙️ Configuration
+## Configuration
 
 flux-cap stores configuration in `.flux/config.json`. You can customize:
 
@@ -119,7 +119,7 @@ flux-cap stores configuration in `.flux/config.json`. You can customize:
 }
 ```
 
-## 📁 Data Structure
+## Data Structure
 
 ```
 .flux/
@@ -142,7 +142,7 @@ flux-cap stores configuration in `.flux/config.json`. You can customize:
 }
 ```
 
-## 🎯 Use Cases
+## Use Cases
 
 ### Context Switching
 ```bash
@@ -168,7 +168,7 @@ flux dump "idea: add keyboard shortcuts to dashboard"
 flux dump "maybe use React.memo for performance optimization"
 ```
 
-## 🛠️ Development
+## Development
 
 Built with:
 - **Bun** - Fast JavaScript runtime
@@ -190,7 +190,7 @@ src/
 └── types/             # TypeScript definitions
 ```
 
-## 🗺️ Roadmap
+## Roadmap
 
 ### Phase 2 (Coming Soon)
 - [ ] ASCII Pomodoro timer with themes
@@ -207,28 +207,14 @@ src/
 - [ ] Team collaboration features
 - [ ] Cross-machine sync
 
-## 🤝 Contributing
+## Contributing
 
 This is currently a personal learning project, but feedback and suggestions are welcome!
 
-## 📄 License
+## License
 
 MIT
 
 ---
 
-**Built for developers who think fast, context-switch often, and never want to lose a good idea.** 🚀
-```
-
-This README showcases:
-- ✅ Clear value proposition for ADHD developers
-- ✅ All implemented features with examples
-- ✅ Complete command reference
-- ✅ Configuration documentation
-- ✅ Privacy-first messaging
-- ✅ Data structure transparency
-- ✅ Real use cases
-- ✅ Development info
-- ✅ Future roadmap
-
-**Ready to ship this for UAT?** The README positions flux-cap as a professional, thoughtful developer tool.
+Built for developers who think fast, context-switch often, and never want to lose a good idea.
