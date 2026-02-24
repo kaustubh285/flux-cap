@@ -22,7 +22,7 @@
 
 ### Minor Changes
 
-- "[minor] Introduce child folder support for flux"
+- "[minor] Introduce sub folder support for flux"
 
 ## 0.1.0
 
