@@ -11,7 +11,7 @@ export type FluxConfig = {
 		hideUncommittedChanges: boolean;
 	},
 	search: {
-		searchFields: ("message" | "workingDir" | "branch" | "tags")[];
+		searchFields: ("message" | "workingDir" | "branch" | "tags" | "id")[];
 		resultLimit: number | null;
 		fuseOptions?: {
 			threshold: number,
