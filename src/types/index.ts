@@ -17,7 +17,9 @@ export type FluxConfig = {
 			threshold: number,
 			includeScore: boolean
 		}
-	}
+	},
+	// ALL optional fields below this line - 24/02/26 - v0.3.0
+	tags?: string[];
 };
 
 export type BrainDump = {
@@ -26,6 +28,14 @@ export type BrainDump = {
 	message: string;
 	workingDir?: string;
 	branch?: string | null;
-	tags?: [],
+	tags?: string[],
 	hasUncommittedChanges?: boolean;
+}
+
+
+export type BrainDumpOptions = {
+	multiline?: boolean;
+	notes?: boolean;
+	ideas?: boolean;
+	tasks?: boolean;
 }

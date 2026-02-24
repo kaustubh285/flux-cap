@@ -29,11 +29,16 @@ flux init
 ```
 *Interactive setup will ask about your privacy preferences*
 
-### 2. Start capturing thoughts
+### 2. Start capturing thoughts with tags
 ```bash
+# Basic brain dumps
 flux dump "remember to add error handling to auth module"
 flux dump "bug in user validation - check line 42" 
-flux dump "idea: add dark mode toggle"
+
+# Tagged brain dumps for better organization
+flux dump -i "add dark mode toggle"              # Ideas
+flux dump -n "team meeting at 3pm tomorrow"      # Notes  
+flux dump -t "refactor payment processing logic" # Tasks
 ```
 
 ### 3. Search your brain dumps
@@ -41,22 +46,27 @@ flux dump "idea: add dark mode toggle"
 # Search with a query
 flux search "auth"
 
+# Search by tags (when implemented in search)
+flux search "ideas"
+flux search "tasks"
+
 # List recent dumps (no query)
 flux search
 ```
 
-
 ## Features
 
-### Brain Dump System
+### Brain Dump System with Smart Tags
 - Instantly capture thoughts without breaking flow: `flux dump "fix auth validation bug"`
+- **Tag system** for better organization: `-i` for ideas, `-n` for notes, `-t` for tasks
 - Git-aware context tracking (branch, working directory, uncommitted changes)
 - Monthly file organization for easy browsing
 - Privacy-first design - you control what gets tracked
 
-### Search
+### Intelligent Search
 - Fuzzy search across all your brain dumps: `flux search "auth"`
-- Configurable search fields (message, branch, working directory)
+- **Tag-aware searching** for filtering by type
+- Configurable search fields (message, branch, working directory, tags)
 - Result ranking with relevance scores
 - Multi-month search with automatic limits
 
@@ -78,41 +88,166 @@ flux search
 - No need to initialize in every subfolder - works project-wide
 - Seamlessly handles monorepos and complex project structures
 
-
 ## Commands
 
 | Command | Description | Example |
 |---------|-------------|---------|
 | `flux init` | Initialize flux-cap with privacy setup | `flux init` |
 | `flux dump <message...>` | Capture a brain dump | `flux dump "fix the bug in auth.ts"` |
+| `flux dump -i <message...>` | Capture an idea | `flux dump -i "add keyboard shortcuts"` |
+| `flux dump -n <message...>` | Capture a note | `flux dump -n "meeting notes from standup"` |
+| `flux dump -t <message...>` | Capture a task | `flux dump -t "refactor user authentication"` |
+| `flux dump -m` | Multiline input mode | `flux dump -m` |
 | `flux search [query...]` | Search brain dumps or list recent ones | `flux search "authentication"` |
-| `flux config <fields...>` | View or update configuration | `flux config` |
+| `flux config [field] [value]` | View or update configuration | `flux config search.resultLimit 20` |
+| `flux config --add-tag <tag>` | Add custom tags to configuration | `flux config --add-tag "bug"` |
+| `flux config --remove-tag <tag>` | Remove tags from configuration | `flux config --remove-tag "old-tag"` |
 | `flux reset` | Complete reset (deletes all data) | `flux reset` |
+
+## Tag System
+
+### Built-in Tags
+flux-cap comes with three built-in tag shortcuts:
+- **`-i, --ideas`** - For capturing ideas and inspiration
+- **`-n, --notes`** - For general notes and reminders  
+- **`-t, --tasks`** - For tasks and todos
+
+### Custom Tags (via config)
+Extend your tagging system by adding custom tags through configuration:
+```bash
+# Add custom tags
+flux config --add-tag "bug"
+flux config --add-tag "meeting"
+flux config --add-tag "review"
+
+# Remove tags you no longer need
+flux config --remove-tag "old-tag"
+```
+
+### Tag Examples
+```bash
+# Ideas for future features
+flux dump -i "add real-time collaboration to the editor"
+flux dump -i "implement auto-save every 30 seconds"
+
+# Meeting notes and reminders
+flux dump -n "team decided to use TypeScript for new components"
+flux dump -n "remember to update documentation before release"
+
+# Task tracking
+flux dump -t "fix memory leak in image processor"
+flux dump -t "write unit tests for authentication module"
+
+# Combine with multiline for detailed entries
+flux dump -t -m  # Opens editor for detailed task description
+```
 
 ## Use Cases
 
 ### Context Switching
 ```bash
 # Before switching tasks
-flux dump "was working on user auth, next: add validation to login form"
+flux dump -t "was working on user auth, next: add validation to login form"
 
 # After interruption  
 flux search "auth"  # Quickly find where you left off
+flux search "tasks" # Find your pending tasks
 ```
 
-### Bug Tracking
+### Bug Tracking & Ideas
 ```bash
-flux dump "weird bug in payment flow - users can't checkout"
-flux dump "bug seems related to session timeout"
+# Track bugs and investigations
+flux dump -n "weird bug in payment flow - users can't checkout"
+flux dump -n "bug seems related to session timeout - check Redis config"
+
+# Capture ideas as they come
+flux dump -i "add keyboard shortcuts to dashboard"
+flux dump -i "maybe use React.memo for performance optimization"
 
 # Later...
 flux search "payment bug"
+flux search "ideas"
 ```
 
-### Idea Capture
+### Meeting Notes & Task Management  
 ```bash
-flux dump "idea: add keyboard shortcuts to dashboard" 
-flux dump "maybe use React.memo for performance optimization"
+# Capture meeting outcomes
+flux dump -n "team standup: focus on performance this sprint"
+flux dump -t "implement caching layer for API responses"
+
+# Track follow-up tasks
+flux dump -t "review Sarah's PR for authentication changes"
+flux dump -t "update deployment documentation"
+```
+
+## Configuration
+
+flux-cap stores configuration in `.flux/config.json`. You can customize:
+
+### Privacy Settings
+```json
+{
+  "privacy": {
+    "hideWorkingDir": false,       // Hide file paths
+    "hideBranchName": false,       // Hide git branch names  
+    "hideUncommittedChanges": false // Hide git status
+  }
+}
+```
+
+### Search Configuration  
+```json
+{
+  "search": {
+    "searchFields": ["message", "branch", "workingDir", "tags"],
+    "resultLimit": 10,
+    "fuseOptions": {
+      "threshold": 0.3,            // 0.0 = exact match, 1.0 = match anything
+      "includeScore": true
+    }
+  }
+}
+```
+
+### Tag Configuration
+```json
+{
+  "tags": ["bug", "meeting", "review", "urgent"]  // Your custom tags
+}
+```
+
+### Other Options
+```json
+{
+  "defaultFocusDuration": 1500,    // 25 minutes in seconds
+  "todoKeywords": ["TODO", "FIXME", "BUG", "OPTIMIZE", "HACK"],
+  "sorted": true,                  // Sort dumps chronologically
+  "theme": "minimal"
+}
+```
+
+## Data Structure
+
+```
+.flux/
+├── config.json          # Your configuration
+├── dumps/               # Brain dumps organized by month
+│   ├── 2026-02.json     
+│   └── 2026-03.json     
+└── sessions/            # Future: Focus session tracking
+```
+
+### Brain Dump Format
+```json
+{
+  "id": "019c5419-671b-7000-9600-5d9b4c563579",
+  "timestamp": "2026-02-12T23:04:36.891Z", 
+  "message": "fix auth validation bug",
+  "tags": ["tasks"],
+  "workingDir": "/Users/you/project",
+  "branch": "feature/auth-fix", 
+  "hasUncommittedChanges": true
+}
 ```
 
 ## Automated Versioning
@@ -144,6 +279,7 @@ bun run changeset:status
 
 # Apply version changes locally
 bun run changeset:version
+```
 
 ## Development
 
@@ -162,96 +298,6 @@ bun run dev <command>
 bun run build
 npm link
 ```
-
-## Configuration
-
-flux-cap stores configuration in `.flux/config.json`. You can customize:
-
-### Privacy Settings
-```json
-{
-  "privacy": {
-    "hideWorkingDir": false,       // Hide file paths
-    "hideBranchName": false,       // Hide git branch names  
-    "hideUncommittedChanges": false // Hide git status
-  }
-}
-```
-
-### Search Configuration  
-```json
-{
-  "search": {
-    "searchFields": ["message", "branch", "workingDir"],
-    "resultLimit": 10,
-    "fuseOptions": {
-      "threshold": 0.3,            // 0.0 = exact match, 1.0 = match anything
-      "includeScore": true
-    }
-  }
-}
-```
-
-### Other Options
-```json
-{
-  "defaultFocusDuration": 1500,    // 25 minutes in seconds
-  "todoKeywords": ["TODO", "FIXME", "BUG", "OPTIMIZE", "HACK"],
-  "sorted": true,                  // Sort dumps chronologically
-  "theme": "minimal"
-}
-```
-
-## Data Structure
-
-```
-.flux/
-├── config.json          # Your configuration
-├── dumps/               # Brain dumps organized by month
-│   ├── 2026-02.json     
-│   └── 2026-03.json     
-└── sessions/            # Future: Focus session tracking
-```
-
-### Brain Dump Format
-```json
-{
-  "id": "019c5419-671b-7000-9600-5d9b4c563579",
-  "timestamp": "2026-02-12T23:04:36.891Z", 
-  "message": "fix auth validation bug",
-  "workingDir": "/Users/you/project",
-  "branch": "feature/auth-fix",
-  "hasUncommittedChanges": true
-}
-```
-
-## Use Cases
-
-### Context Switching
-```bash
-# Before switching tasks
-flux dump "was working on user auth, next: add validation to login form"
-
-# After interruption  
-flux search "auth"  # Quickly find where you left off
-```
-
-### Bug Tracking
-```bash
-flux dump "weird bug in payment flow - users can't checkout"
-flux dump "bug seems related to session timeout"
-
-# Later...
-flux search "payment bug"
-```
-
-### Idea Capture
-```bash
-flux dump "idea: add keyboard shortcuts to dashboard"
-flux dump "maybe use React.memo for performance optimization"
-```
-
-## Development
 
 Built with:
 - **Bun** - Fast JavaScript runtime
@@ -276,6 +322,7 @@ src/
 ## Roadmap
 
 ### Phase 2 (Coming Soon)
+- [ ] Enhanced tag-based search filtering
 - [ ] ASCII Pomodoro timer with themes
 - [ ] Visual focus mode display
 - [ ] Theme rotation system
@@ -284,11 +331,13 @@ src/
 - [ ] Advanced git context switching
 - [ ] Session restoration
 - [ ] Time tracking per context
+- [ ] Tag analytics and insights
 
 ### Phase 4 (Maybe)
 - [ ] AI-powered brain dump analysis
 - [ ] Team collaboration features
 - [ ] Cross-machine sync
+- [ ] Smart tag suggestions
 
 ## Contributing
 

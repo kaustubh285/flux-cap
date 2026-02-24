@@ -22,6 +22,9 @@ program.command('reset')
 
 program.command('dump [message...]')
 	.option('-m, --multiline', 'Enable multiline input mode')
+	.option('-n, --notes', 'Jot down a note')
+	.option('-i, --ideas', 'Jot down an idea')
+	.option('-t, --tasks', 'Jot down a task')
 	.description('Add a brain dump with a message. Use --multiline for multi-line input.')
 	.action(async (message, options) => {
 		await handleBrainDump(message, options);
@@ -32,8 +35,10 @@ program.command('search [query...]')
 	.action((query?: string[]) => {
 		searchBrainDumpCommand(query ? query : [""]);
 	})
-
-program.command('config <fields...>')
+// .alias("cfg")
+program.command('config ')
+	.option("-r [tag...], --remove-tag [tag...]", "Remove a tag from the configuration")
+	.option("-a [tag...], --add-tag [tag...]", "Add a tag to the configuration")
 	.description('Update configuration fields. Example: flux config search.limit 10')
 	.action(configCommand)
 
