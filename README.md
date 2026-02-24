@@ -294,6 +294,31 @@ src/
 
 This is currently a personal learning project, but feedback and suggestions are welcome!
 
+How to control version bumps:
+
+### Method 1: Use GitHub Labels
+Add these labels to your repository and apply them to PRs:
+- `major` or `breaking` → Major version bump
+- `minor` or `feature` → Minor version bump  
+- `patch` or `bugfix` → Patch version bump
+
+### Method 2: Use PR Title Syntax
+Start your PR title with the version type in brackets:
+- `[major] Remove deprecated API endpoints`
+- `[minor] Add new search command` 
+- `[patch] Fix memory leak in dump command`
+
+### Method 3: Automatic Detection (Conservative)
+The system will now only auto-detect major bumps with very explicit indicators like:
+- "breaking change"
+- "breaking:"
+- "major:"
+- "!breaking"
+- "remove api"
+- "delete command"
+
+**Everything else defaults to patch unless you have clear feature indicators for minor.**
+
 ## License
 
 MIT
