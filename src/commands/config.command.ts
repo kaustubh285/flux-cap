@@ -1,19 +1,38 @@
-import { getConfigFile } from "../utils/lib";
+import { FLUX_CONFIG_PATH } from "../utils";
+import { getConfigFile, getFluxPath } from "../utils/lib";
 
-// TODO: Still to be implemented
-export async function configCommand(fields: string[]) {
-	console.log("This command is still to be implemented");
+export async function configCommand(options: { a?: string, r?: string }, tag: string[]) {
+
+	const fluxPath = await getFluxPath()
 	const fs = await import("fs");
-	const config = await getConfigFile();
+	const config = await getConfigFile(fluxPath);
 
-	const value = fields[fields.length - 1];
-	const keys = fields.slice(0, -1)[0]?.split('.').map(k => k.trim()) || [];
 
-	console.log(`want to update config field: ${JSON.stringify(keys)} with value: ${value}`);
+	if (options.a) {
+		console.log("Adding tag(s) to configuration...");
+		if (!config.tags) {
+			config.tags = [];
+		}
+		if (!config.tags.includes(options.a)) {
+			config.tags = Array.from(new Set([...config.tags, ...options.a]))
+			console.log(config.tags)
+			fs.writeFileSync(fluxPath + FLUX_CONFIG_PATH, JSON.stringify(config, null, 4));
+			console.log(`Tag "${options.a}" added to configuration.`);
+		} else {
+			console.log(`Tag "${options.a}" already exists in configuration.`);
+		}
+	}
 
-	if (keys.length === 0 || value === undefined) {
-		console.log("Current Flux Capacitor configuration:");
-		console.log(JSON.stringify(config, null, 4));
-		return;
+	if (options.r) {
+		console.log("Removing tag(s) from configuration...");
+		for (const removeTag of options.r) {
+			if (config.tags && config.tags.includes(removeTag)) {
+				config.tags = config.tags.filter(tag => tag !== removeTag);
+				fs.writeFileSync(fluxPath + FLUX_CONFIG_PATH, JSON.stringify(config, null, 4));
+				console.log(`Tag "${removeTag}" removed from configuration.`);
+			} else {
+				console.log(`Tag "${removeTag}" does not exist in configuration.`);
+			}
+		}
 	}
 }

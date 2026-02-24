@@ -1,4 +1,4 @@
-import type { FluxConfig } from "../types";
+import type { BrainDumpOptions, FluxConfig } from "../types";
 import { execSync } from 'child_process';
 
 export function getGitUncommittedChanges(config: FluxConfig): boolean {
@@ -32,4 +32,25 @@ export function getCurrentBranch(config: FluxConfig): string | null {
 	} catch (error) {
 		return "";
 	}
+}
+
+export function getTags(options: BrainDumpOptions, config: FluxConfig) {
+
+	let tags: string[] = [];
+	let optionTags = Object.keys(options).filter(key => options[key as keyof BrainDumpOptions] === true);
+
+	if (!config.tags) {
+		console.log("You do not have any tags configured. You can add tags to your config to use this feature. or run `flux config --add-tags notes ideas tasks` to add default tags. or update the config file");
+	} else {
+
+		for (const tag of optionTags) {
+			if (config.tags && config.tags.includes(tag)) {
+				tags.push(tag);
+			}
+		}
+	}
+
+	return tags;
+
+
 }

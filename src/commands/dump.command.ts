@@ -1,11 +1,11 @@
 import { randomUUID } from "crypto";
-import type { BrainDump, FluxConfig } from "../types";
+import type { BrainDump, BrainDumpOptions, FluxConfig } from "../types";
 import { FLUX_BRAIN_DUMP_PATH, FLUX_CONFIG_PATH } from "../utils/constants";
-import { createBrainDumpFileIfNotExists, getConfigFile, getCurrentBranch, getFluxPath, getGitUncommittedChanges, getMonthString, getWorkingDir } from "../utils/";
+import { createBrainDumpFileIfNotExists, getConfigFile, getCurrentBranch, getFluxPath, getGitUncommittedChanges, getMonthString, getTags, getWorkingDir } from "../utils/";
 import { editor } from '@inquirer/prompts';
 
 
-export async function handleBrainDump(message: string[], options: { multiline?: boolean }) {
+export async function handleBrainDump(message: string[], options: BrainDumpOptions) {
 	try {
 		let finalMessage: string;
 
@@ -33,7 +33,7 @@ export async function handleBrainDump(message: string[], options: { multiline?: 
 			finalMessage = message.join(' ');
 		}
 
-		await brainDumpAddCommand(finalMessage, { multiline: options.multiline });
+		await brainDumpAddCommand(finalMessage, options);
 
 	} catch (error) {
 		console.error('Error creating brain dump:', error instanceof Error ? error.message : 'Unknown error');
@@ -42,9 +42,11 @@ export async function handleBrainDump(message: string[], options: { multiline?: 
 }
 
 
-export async function brainDumpAddCommand(message: string, options: { multiline?: boolean } = {}) {
+export async function brainDumpAddCommand(message: string, options: BrainDumpOptions = {}) {
 	const fluxPath = await getFluxPath()
 	const fs = await import("fs");
+
+
 
 	console.log("Creating brain dump...");
 
@@ -55,6 +57,8 @@ export async function brainDumpAddCommand(message: string, options: { multiline?
 	const workingDir = await getWorkingDir(config)
 	const branch = getCurrentBranch(config)
 	const hasUncommittedChanges = getGitUncommittedChanges(config);
+	const tags = getTags(options, config);
+
 
 	const newDump: BrainDump = {
 		id: randomUUID(),
@@ -62,7 +66,8 @@ export async function brainDumpAddCommand(message: string, options: { multiline?
 		message: message,
 		workingDir,
 		branch,
-		hasUncommittedChanges
+		hasUncommittedChanges,
+		tags
 	};
 
 	const data: { dumps: BrainDump[] } = JSON.parse(fs.readFileSync(`${fluxPath}${FLUX_BRAIN_DUMP_PATH}/${monthString}.json`, 'utf8'));

@@ -12,7 +12,13 @@
 
 - 32bce38: Revert "[minor] Flux dump/support multiline"
 
-## 1.0.0
+## 0.1.5
+
+### Minor Changes
+
+-  "[minor] Introduce child folder support for flux"
+
+## 0.1.0
 
 ### Major Changes
 
