@@ -1,5 +1,11 @@
 # @dev_desh/flux-cap
 
+## 0.4.0
+
+### Minor Changes
+
+- 15c5a1b: Add tag support for brain dumps
+
 ## 0.3.0
 
 ### Minor Changes
@@ -16,7 +22,7 @@
 
 ### Minor Changes
 
--  "[minor] Introduce child folder support for flux"
+- "[minor] Introduce child folder support for flux"
 
 ## 0.1.0
 
