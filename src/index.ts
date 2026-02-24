@@ -6,6 +6,7 @@ import { searchBrainDumpCommand } from "./commands/search.command";
 import { configCommand } from "./commands/config.command";
 import { helpOption } from "./commands/flux.option";
 import packageJson from "../package.json"
+import { getFluxPath } from "./utils";
 const program = new Command()
 
 program.name(`flux`).description('Git-aware CLI context manager for ADHD developers').version(packageJson.version);
@@ -31,5 +32,9 @@ program.command('search [query...]')
 program.command('config <fields...>')
 	.description('Update configuration fields. Example: flux config search.limit 10')
 	.action(configCommand)
+
+program.command("test").action(async () => {
+	console.log(`Path is - ${await getFluxPath()}`)
+})
 
 program.parse(process.argv);

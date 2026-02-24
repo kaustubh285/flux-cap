@@ -1,6 +1,29 @@
 import type { FluxConfig } from "../types";
 import { FLUX_BRAIN_DUMP_PATH, FLUX_CONFIG_PATH } from "./constants";
 import { execSync } from 'child_process';
+import fs from "fs";
+import path from "path";
+
+export async function getFluxPath() {
+
+	const cwd = process.cwd();
+
+	let fullPath = cwd.split(path.sep);
+	while (true) {
+		let parentPath = fullPath.join(path.sep) + "/.flux"
+		console.log(`testing ${parentPath}`)
+		if (fs.existsSync(parentPath)) {
+			return parentPath.split(".flux")[0]
+			break;
+		}
+		fullPath.pop();
+		if (fullPath.length === 0) {
+			break;
+		}
+	}
+	console.error("No .flux directory found in the current or parent directories. Please run 'flux init' to initialize.");
+	process.exit(1);
+}
 
 export async function createIfNotExists(folderPath: string, type: 'file' | 'directory', data?: any): Promise<void> {
 	try {
@@ -44,9 +67,9 @@ export async function createIfNotExists(folderPath: string, type: 'file' | 'dire
 	}
 }
 
-export async function createBrainDumpFileIfNotExists(dateString: string) {
+export async function createBrainDumpFileIfNotExists(dateString: string, fluxPath?: string) {
 
-	await createIfNotExists(`${FLUX_BRAIN_DUMP_PATH}${dateString}.json`, 'file', JSON.stringify({
+	await createIfNotExists(`${fluxPath}${FLUX_BRAIN_DUMP_PATH}${dateString}.json`, 'file', JSON.stringify({
 		fluxVersion: "0.0.1",
 		month: dateString,
 		dumps: []
@@ -54,16 +77,16 @@ export async function createBrainDumpFileIfNotExists(dateString: string) {
 }
 
 
-export async function getConfigFile(): Promise<FluxConfig> {
+export async function getConfigFile(fluxPath?: string): Promise<FluxConfig> {
 	const fs = await import("fs");
-	const configPath = `${FLUX_CONFIG_PATH}`;
+	const configPath = `${fluxPath}${FLUX_CONFIG_PATH}`;
 	let config: FluxConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 	return config;
 }
 
-export async function getAllBrainDumpFilePaths(): Promise<string[]> {
+export async function getAllBrainDumpFilePaths(fluxPath?: string): Promise<string[]> {
 	const fs = await import("fs");
 	const path = await import("path");
-	const files = fs.readdirSync(FLUX_BRAIN_DUMP_PATH);
-	return files.filter(file => file.endsWith(".json")).map(file => path.join(FLUX_BRAIN_DUMP_PATH, file));
+	const files = fs.readdirSync(fluxPath + FLUX_BRAIN_DUMP_PATH);
+	return files.filter(file => file.endsWith(".json")).map(file => path.join(fluxPath + FLUX_BRAIN_DUMP_PATH, file));
 }

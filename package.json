@@ -1,5 +1,6 @@
 {
 	"name": "@dev_desh/flux-cap",
+	"type": "module",
 	"version": "0.1.2",
 	"description": "Git-aware CLI context manager for ADHD developers",
 	"bin": {
@@ -16,7 +17,8 @@
 		"prepublishOnly": "bun run build",
 		"publish": "npm publish --access=public",
 		"local-install": "bun run build && npm link",
-		"local-uninstall": "npm unlink -g flux-cap"
+		"local-uninstall": "npm unlink -g flux-cap",
+		"local-reinstall": "bun run local-uninstall && bun run local-install"
 	},
 	"engines": {
 		"node": ">=18.0.0"

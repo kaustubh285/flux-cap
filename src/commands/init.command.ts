@@ -1,6 +1,6 @@
 import fs from "fs";
 import { FLUX_BRAIN_DUMP_PATH, FLUX_CONFIG_PATH, FLUX_DEFAULT_CONFIG, FLUX_FOLDER_PATH, FLUX_SESSION_PATH } from "../utils/constants";
-import { createIfNotExists } from "../utils/";
+import { createIfNotExists, getFluxPath } from "../utils/";
 import inquirer from "inquirer";
 
 export async function initFluxCommand() {
@@ -90,6 +90,7 @@ export async function initFluxCommand() {
 
 export const resetFluxCommand = async () => {
 	console.log("Resetting Flux Capacitor...");
+	const fluxPath = await getFluxPath() + FLUX_FOLDER_PATH
 
 	const { confirmed } = await inquirer.prompt([{
 		type: 'confirm',
@@ -104,8 +105,8 @@ export const resetFluxCommand = async () => {
 	}
 
 	try {
-		if (fs.existsSync(FLUX_FOLDER_PATH)) {
-			fs.rmSync(FLUX_FOLDER_PATH, { recursive: true, force: true });
+		if (fs.existsSync(fluxPath)) {
+			fs.rmSync(fluxPath, { recursive: true, force: true });
 			console.log("Removed .flux directory and all its contents.");
 		}
 		else {

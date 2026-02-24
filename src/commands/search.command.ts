@@ -1,17 +1,17 @@
 import Fuse from "fuse.js"
-import { FLUX_BRAIN_DUMP_PATH, getAllBrainDumpFilePaths, getConfigFile, getMonthString, searchResultFormat } from "../utils";
+import { FLUX_BRAIN_DUMP_PATH, getAllBrainDumpFilePaths, getConfigFile, getFluxPath, getMonthString, searchResultFormat } from "../utils";
 import { createFuseInstance } from "../utils/fuse.instance";
 import type { BrainDump } from "../types";
 import fs from "fs";
 
 export async function searchBrainDumpCommand(query: string[]) {
 	console.log("Searching all brain dumps...");
-
-	const config = await getConfigFile();
+	const fluxPath = await getFluxPath()
+	const config = await getConfigFile(fluxPath);
 	const monthString = getMonthString();
 
 	let searchResults = []
-	const allFilePaths = await getAllBrainDumpFilePaths();
+	const allFilePaths = await getAllBrainDumpFilePaths(fluxPath);
 
 	for await (const filePath of allFilePaths) {
 		const fileData: { dumps: BrainDump[] } = JSON.parse(fs.readFileSync(filePath, 'utf8'));
