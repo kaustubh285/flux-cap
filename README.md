@@ -23,7 +23,7 @@ bun install -g @dev_desh/flux-cap
 
 ## Quick Start
 
-### 1. Initialize flux-cap in your project
+### 1. Initialize flux-cap in your project root folder
 ```bash
 flux init
 ```
@@ -72,6 +72,12 @@ flux search
 - .gitignore management
 - Works in non-git directories too
 
+### Parent Directory Support
+- Initialize flux-cap once in your project root and use it from any subdirectory
+- Automatically discovers `.flux` configuration by traversing up the directory tree
+- No need to initialize in every subfolder - works project-wide
+- Seamlessly handles monorepos and complex project structures
+
 
 ## Commands
 
@@ -108,6 +114,36 @@ flux search "payment bug"
 flux dump "idea: add keyboard shortcuts to dashboard" 
 flux dump "maybe use React.memo for performance optimization"
 ```
+
+## Automated Versioning
+
+flux-cap uses [Changesets](https://github.com/changesets/changesets) for automated semantic versioning:
+
+### What happens when you merge a PR:
+1. **Automatic Analysis**: GitHub Actions analyzes your PR changes
+2. **Smart Version Bumping**: Determines appropriate version (major/minor/patch) based on:
+   - PR title and description
+   - Commit messages  
+   - Files changed
+3. **Changelog Generation**: Creates detailed changelog entries
+4. **Version Updates**: Updates `package.json` automatically
+5. **Git Integration**: Commits changes back to main branch
+
+### Version Bump Rules:
+- **Major** (`1.0.0 → 2.0.0`): Breaking changes, removed features, incompatible API changes
+- **Minor** (`1.0.0 → 1.1.0`): New features, new commands, backwards-compatible enhancements
+- **Patch** (`1.0.0 → 1.0.1`): Bug fixes, documentation updates, refactoring, performance improvements
+
+### Manual Changesets:
+```bash
+# Add a changeset manually (if needed)
+bun run changeset
+
+# Check pending changesets
+bun run changeset:status
+
+# Apply version changes locally
+bun run changeset:version
 
 ## Development
 
