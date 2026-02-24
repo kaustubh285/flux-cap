@@ -21,7 +21,7 @@ export const FLUX_DEFAULT_CONFIG: FluxConfig = {
 		hideUncommittedChanges: false,
 	},
 	search: {
-		searchFields: ["message", "workingDir", "branch", "tags"],
+		searchFields: ["message", "workingDir", "branch", "tags", "id"],
 		resultLimit: 10,
 		fuseOptions: {
 			threshold: 0.3,
