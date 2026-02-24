@@ -38,7 +38,7 @@ function formatMessageForDisplay(message: string): string {
 export function displaySearchResults(results: Array<{ item: BrainDump, score?: number }>, query?: string) {
 	if (results.length === 0) {
 		if (query) {
-			console.log(`❌ No brain dumps found matching "${query}"`);
+			console.log(`No brain dumps found matching "${query}"`);
 		} else {
 			console.log("No brain dumps found. Try 'flux dump' to create your first one!");
 		}
@@ -97,7 +97,7 @@ export function displaySearchResults(results: Array<{ item: BrainDump, score?: n
 		contextInfo.push('\n');
 
 		if (dump.branch && dump.branch !== 'main') {
-			contextInfo.push(`🌿 ${dump.branch}${dump.hasUncommittedChanges ? ' (uncommitted)' : ''}`);
+			contextInfo.push(`${dump.branch}${dump.hasUncommittedChanges ? ' (uncommitted)' : ''}`);
 		}
 
 		if (contextInfo.length > 0) {

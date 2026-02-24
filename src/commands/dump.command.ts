@@ -20,14 +20,14 @@ export async function handleBrainDump(message: string[], options: { multiline?: 
 			});
 
 			if (!multilineInput.trim()) {
-				console.log('❌ Brain dump cancelled - no content provided');
+				console.log('Brain dump cancelled - no content provided');
 				return;
 			}
 
 			finalMessage = multilineInput.trim();
 		} else {
 			if (!message || message.length === 0) {
-				console.log('❌ Please provide a message: flux dump "your message"');
+				console.log('Please provide a message: flux dump "your message"');
 				return;
 			}
 			finalMessage = message.join(' ');
@@ -36,7 +36,7 @@ export async function handleBrainDump(message: string[], options: { multiline?: 
 		await brainDumpAddCommand(finalMessage, { multiline: options.multiline });
 
 	} catch (error) {
-		console.error('❌ Error creating brain dump:', error instanceof Error ? error.message : 'Unknown error');
+		console.error('Error creating brain dump:', error instanceof Error ? error.message : 'Unknown error');
 		process.exit(1);
 	}
 }
