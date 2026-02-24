@@ -11,7 +11,6 @@ export async function getFluxPath() {
 	let fullPath = cwd.split(path.sep);
 	while (true) {
 		let parentPath = fullPath.join(path.sep) + "/.flux"
-		console.log(`testing ${parentPath}`)
 		if (fs.existsSync(parentPath)) {
 			return parentPath.split(".flux")[0]
 			break;
