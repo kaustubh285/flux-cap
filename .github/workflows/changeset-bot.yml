@@ -1,0 +1,213 @@
+name: Auto Changeset and Version
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  changeset-and-version:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Get merged PR info
+        id: pr-info
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number
+            });
+
+            const { data: commits } = await github.rest.pulls.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number
+            });
+
+            const meaningfulFiles = files.filter(file => {
+              const filename = file.filename.toLowerCase();
+              return filename.includes('src/') ||
+                     filename.includes('package.json') ||
+                     (!filename.includes('readme') &&
+                      !filename.includes('.md') &&
+                      !filename.includes('.yml') &&
+                      !filename.includes('.yaml') &&
+                      !filename.includes('license') &&
+                      !filename.startsWith('docs/') &&
+                      !filename.startsWith('.github/'));
+            });
+
+            if (meaningfulFiles.length === 0) {
+              console.log('No meaningful code changes detected, skipping changeset generation');
+              core.setOutput('skip', 'true');
+              return;
+            }
+
+            const commitMessages = commits.map(c => c.commit.message).join('\n');
+            const fileChanges = files.map(f => `${f.filename} (+${f.additions}/-${f.deletions})`).join('\n');
+
+            core.setOutput('skip', 'false');
+            core.setOutput('pr_title', pr.title);
+            core.setOutput('pr_body', pr.body || 'No description provided');
+            core.setOutput('commits', commitMessages);
+            core.setOutput('files', fileChanges);
+            core.setOutput('meaningful_files', meaningfulFiles.length);
+
+      - name: Generate changeset
+        if: steps.pr-info.outputs.skip != 'true'
+        id: generate-changeset
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prTitle = `${{ steps.pr-info.outputs.pr_title }}`;
+            const commits = `${{ steps.pr-info.outputs.commits }}`;
+
+            let versionType = 'patch';
+            let description = prTitle;
+
+            const combined = (prTitle + ' ' + commits).toLowerCase();
+
+            if (combined.includes('breaking') ||
+                combined.includes('major') ||
+                combined.includes('remove') && !combined.includes('bug') ||
+                combined.includes('delete') && !combined.includes('test') ||
+                combined.includes('incompatible')) {
+              versionType = 'major';
+            }
+            else if (combined.includes('feat') ||
+                     combined.includes('feature') ||
+                     combined.includes('add') ||
+                     combined.includes('new') ||
+                     combined.includes('minor') ||
+                     combined.includes('enhance') ||
+                     combined.includes('improve') && !combined.includes('fix') ||
+                     combined.includes('command') ||
+                     combined.includes('option')) {
+              versionType = 'minor';
+            }
+            // Patch version indicators (default)
+            else if (combined.includes('fix') ||
+                     combined.includes('bug') ||
+                     combined.includes('patch') ||
+                     combined.includes('update') ||
+                     combined.includes('refactor') ||
+                     combined.includes('perf') ||
+                     combined.includes('docs') ||
+                     combined.includes('style') ||
+                     combined.includes('test')) {
+              versionType = 'patch';
+            }
+
+            description = prTitle
+              .replace(/^(feat|fix|docs|style|refactor|test|chore|perf)(\([^)]+\))?: /i, '')
+              .replace(/^(add|fix|update|remove|delete|improve|enhance): /i, '')
+              .trim();
+
+            if (!description || description.length < 5) {
+              description = prTitle;
+            }
+
+            description = description.charAt(0).toUpperCase() + description.slice(1);
+
+            core.setOutput('version_type', versionType);
+            core.setOutput('description', description);
+
+            console.log(`Generated changeset: ${versionType} - ${description}`);
+
+      - name: Create changeset file
+        if: steps.pr-info.outputs.skip != 'true'
+        run: |
+          # Generate a random filename for the changeset
+          FILENAME=$(head /dev/urandom | tr -dc a-z | head -c 10)
+
+          # Ensure .changeset directory exists
+          mkdir -p .changeset
+
+          # Create the changeset file with proper YAML frontmatter
+          cat > ".changeset/${FILENAME}.md" << 'CHANGESET_EOF'
+          ---
+          "@dev_desh/flux-cap": ${{ steps.generate-changeset.outputs.version_type }}
+          ---
+
+          ${{ steps.generate-changeset.outputs.description }}
+          CHANGESET_EOF
+
+          echo "Created changeset file: .changeset/${FILENAME}.md"
+          echo "Content:"
+          cat ".changeset/${FILENAME}.md"
+
+      - name: Version package and commit
+        if: steps.pr-info.outputs.skip != 'true'
+        run: |
+          # Configure git
+          git config user.name "changeset-bot[bot]"
+          git config user.email "changeset-bot[bot]@users.noreply.github.com"
+
+          # Add the new changeset file
+          git add .changeset/*.md
+
+          # Commit the changeset if there are changes
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: add changeset for PR #${{ github.event.pull_request.number }}"
+            echo "Committed changeset file"
+          else
+            echo "No changeset changes to commit"
+          fi
+
+          # Run changeset version to update package.json and generate/update CHANGELOG.md
+          bunx changeset version
+
+          # Commit version changes if any
+          if ! git diff --quiet; then
+            git add .
+            git commit -m "chore: version package [skip ci]"
+            echo "Committed version changes"
+          else
+            echo "No version changes to commit"
+          fi
+
+          # Push all changes back to main
+          git push origin main
+
+      - name: Comment on PR
+        if: steps.pr-info.outputs.skip != 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const versionType = '${{ steps.generate-changeset.outputs.version_type }}';
+            const description = '${{ steps.generate-changeset.outputs.description }}';
+            const meaningfulFiles = '${{ steps.pr-info.outputs.meaningful_files }}';
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `🤖 **Changeset Generated Automatically**
+
+              **Version Bump:** \`${versionType}\`
+              **Description:** ${description}
+              **Files Changed:** ${meaningfulFiles} meaningful files
+
+              The package version has been updated and a changelog entry has been created! 🚀`
+            });
