@@ -1,3 +1,5 @@
+import { brainDumpAddCommand } from "../commands/dump.command";
+
 export function getMonthString(): string {
 	const currentDate = new Date();
 	const year = currentDate.getFullYear();

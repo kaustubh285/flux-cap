@@ -79,61 +79,78 @@ jobs:
         id: generate-changeset
         uses: actions/github-script@v7
         with:
-          script: |
-            const prTitle = `${{ steps.pr-info.outputs.pr_title }}`;
-            const commits = `${{ steps.pr-info.outputs.commits }}`;
+              script: |
+                  const prTitle = `${{ steps.pr-info.outputs.pr_title }}`;
+                  const prBody = `${{ steps.pr-info.outputs.pr_body }}`;
+                  const commits = `${{ steps.pr-info.outputs.commits }}`;
 
-            let versionType = 'patch';
-            let description = prTitle;
+                  // Get PR labels for manual override
+                  const pr = context.payload.pull_request;
+                  const labels = pr.labels.map(label => label.name.toLowerCase());
 
-            const combined = (prTitle + ' ' + commits).toLowerCase();
+                  let versionType = 'patch'; // Conservative default
+                  let description = prTitle;
 
-            if (combined.includes('breaking') ||
-                combined.includes('major') ||
-                combined.includes('remove') && !combined.includes('bug') ||
-                combined.includes('delete') && !combined.includes('test') ||
-                combined.includes('incompatible')) {
-              versionType = 'major';
-            }
-            else if (combined.includes('feat') ||
-                     combined.includes('feature') ||
-                     combined.includes('add') ||
-                     combined.includes('new') ||
-                     combined.includes('minor') ||
-                     combined.includes('enhance') ||
-                     combined.includes('improve') && !combined.includes('fix') ||
-                     combined.includes('command') ||
-                     combined.includes('option')) {
-              versionType = 'minor';
-            }
-            // Patch version indicators (default)
-            else if (combined.includes('fix') ||
-                     combined.includes('bug') ||
-                     combined.includes('patch') ||
-                     combined.includes('update') ||
-                     combined.includes('refactor') ||
-                     combined.includes('perf') ||
-                     combined.includes('docs') ||
-                     combined.includes('style') ||
-                     combined.includes('test')) {
-              versionType = 'patch';
-            }
+                  // Manual override via labels (highest priority)
+                  if (labels.includes('major') || labels.includes('breaking')) {
+                    versionType = 'major';
+                  } else if (labels.includes('minor') || labels.includes('feature')) {
+                    versionType = 'minor';
+                  } else if (labels.includes('patch') || labels.includes('bugfix')) {
+                    versionType = 'patch';
+                  } else {
+                    // Manual override via PR title syntax: [major], [minor], [patch]
+                    const titleMatch = prTitle.match(/^\[(major|minor|patch)\]/i);
+                    if (titleMatch) {
+                      versionType = titleMatch[1].toLowerCase();
+                      description = prTitle.replace(/^\[(major|minor|patch)\]\s*/i, '');
+                    } else {
+                      // Automatic detection (much more conservative)
+                      const combined = (prTitle + ' ' + prBody + ' ' + commits).toLowerCase();
 
-            description = prTitle
-              .replace(/^(feat|fix|docs|style|refactor|test|chore|perf)(\([^)]+\))?: /i, '')
-              .replace(/^(add|fix|update|remove|delete|improve|enhance): /i, '')
-              .trim();
+                      // Major: Only with very explicit breaking change indicators
+                      if ((combined.includes('breaking change') ||
+                           combined.includes('breaking:') ||
+                           combined.includes('major:') ||
+                           combined.includes('!breaking') ||
+                           (combined.includes('remove') && combined.includes('api')) ||
+                           (combined.includes('delete') && combined.includes('command')))) {
+                        versionType = 'major';
+                      }
+                      // Minor: New features, commands, enhancements
+                      else if (combined.includes('feat:') ||
+                               combined.includes('feature:') ||
+                               combined.includes('add command') ||
+                               combined.includes('new command') ||
+                               combined.includes('add feature') ||
+                               combined.includes('new feature') ||
+                               combined.includes('minor:') ||
+                               combined.includes('enhance') ||
+                               (combined.includes('add') && (combined.includes('option') || combined.includes('flag')))) {
+                        versionType = 'minor';
+                      }
+                      // Everything else defaults to patch
+                    }
+                  }
 
-            if (!description || description.length < 5) {
-              description = prTitle;
-            }
+                  // Clean up description
+                  description = description
+                    .replace(/^(feat|fix|docs|style|refactor|test|chore|perf)(\([^)]+\))?: /i, '')
+                    .replace(/^(add|fix|update|remove|delete|improve|enhance): /i, '')
+                    .replace(/^\[(major|minor|patch)\]\s*/i, '')
+                    .trim();
 
-            description = description.charAt(0).toUpperCase() + description.slice(1);
+                  if (!description || description.length < 5) {
+                    description = prTitle;
+                  }
 
-            core.setOutput('version_type', versionType);
-            core.setOutput('description', description);
+                  description = description.charAt(0).toUpperCase() + description.slice(1);
 
-            console.log(`Generated changeset: ${versionType} - ${description}`);
+                  core.setOutput('version_type', versionType);
+                  core.setOutput('description', description);
+
+                  console.log(`Generated changeset: ${versionType} - ${description}`);
+                  console.log(`Detection method: ${labels.length > 0 ? 'labels' : titleMatch ? 'title syntax' : 'automatic'}`);
 
       - name: Create changeset file
         if: steps.pr-info.outputs.skip != 'true'
