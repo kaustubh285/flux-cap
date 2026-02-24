@@ -1,5 +1,11 @@
 # @dev_desh/flux-cap
 
+## 0.3.0
+
+### Minor Changes
+
+- 4d008bc: Add id to searchable fields
+
 ## 0.2.0
 
 ### Minor Changes
