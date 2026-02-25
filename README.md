@@ -113,15 +113,17 @@ flux-cap comes with three built-in tag shortcuts:
 - **`-t, --tasks`** - For tasks and todos
 
 ### Custom Tags (via config)
-Extend your tagging system by adding custom tags through configuration:
+Extend your tagging system by adding custom tags for brain dumps:
 ```bash
-# Add custom tags
-flux config --add-tag "bug"
-flux config --add-tag "meeting"
-flux config --add-tag "review"
+# Built-in shortcuts (current)
+flux dump -i "idea message"
+flux dump -n "note message" 
+flux dump -t "task message"
 
-# Remove tags you no longer need
-flux config --remove-tag "old-tag"
+# Generic tag option (new)
+flux dump --tag thought "my message"
+flux dump --tag bug "found an issue"
+flux dump --tag meeting "standup notes"
 ```
 
 ### Tag Examples
