@@ -1,5 +1,11 @@
 # @dev_desh/flux-cap
 
+## 0.5.0
+
+### Minor Changes
+
+- a4e052f: Fixes #12 : Custom tag usage
+
 ## 0.4.0
 
 ### Minor Changes
