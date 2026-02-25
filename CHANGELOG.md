@@ -1,5 +1,11 @@
 # @dev_desh/flux-cap
 
+## 0.6.0
+
+### Minor Changes
+
+- 36e7947: Search Improvements fixes#15 fixes#18 fixes#17
+
 ## 0.5.0
 
 ### Minor Changes
