@@ -43,7 +43,7 @@ flux dump -t "refactor payment processing logic" # Tasks
 
 ### 3. Search your brain dumps
 
-![https://github.com/kaustubh285/flux-cap/tree/main/images/v0.6-search-output.png](https://github.com/kaustubh285/flux-cap/tree/main/images/v0.6-search-output.png)
+![https://github.com/kaustubh285/flux-cap/blob/main/images/v0.6-search-output.png](https://github.com/kaustubh285/flux-cap/blob/main/images/v0.6-search-output.png)
 
 ```bash
 # Search with a query
