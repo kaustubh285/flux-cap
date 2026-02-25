@@ -13,6 +13,7 @@ const program = new Command()
 program.name(`flux`).description('Git-aware CLI context manager for ADHD developers').version(packageJson.version);
 
 program.command('init')
+	.option("-y, --yes", "Accept all default options for initialization")
 	.description('Initialize flux in the current repository')
 	.action(initFluxCommand)
 
@@ -23,9 +24,11 @@ program.command('reset')
 program.command('dump [message...]')
 	.option('-m, --multiline', 'Enable multiline input mode')
 	.option('-n, --notes', 'Jot down a note')
-	.option('-i, --ideas', 'Jot down an idea')
+	.option('-i, --important', 'Jot down a link')
+	.option('-d, --ideas', 'Jot down an idea')
 	.option('-t, --tasks', 'Jot down a task')
 	.option('-b, --bugs', 'Jot down a bug')
+	.option('-l, --links', 'Jot down a link')
 	.option('--tag [custom]', 'Jot down a custom tagged')
 	.description('Add a brain dump with a message. Use --multiline for multi-line input.')
 	.action(async (message, options) => {
