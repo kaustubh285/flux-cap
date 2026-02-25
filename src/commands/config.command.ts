@@ -1,38 +1,83 @@
 import { FLUX_CONFIG_PATH } from "../utils";
 import { getConfigFile, getFluxPath } from "../utils/lib";
 
-export async function configCommand(options: { a?: string, r?: string }, tag: string[]) {
-
+export async function configCommand(data: string[]) {
+	console.log(`Updating key: ${data[0]} to ${data[1]}`);
 	const fluxPath = await getFluxPath()
 	const fs = await import("fs");
 	const config = await getConfigFile(fluxPath);
 
+	if (data.length < 2) {
+		console.log("Please provide a key and value to update the config. Example: flux config --add-tags notes ideas tasks");
+		return;
+	}
+	const key = data[0];
+	const value = data.slice(1).join(' ');
+	const editableKeys = [
+		"hideWorkingDir",
+		"hideBranchName",
+		"hideUncommittedChanges",
+		"resultLimit",
+		"threshold",
+		"includeScore",
+		"defaultFocusDuration"
+	]
 
-	if (options.a) {
-		console.log("Adding tag(s) to configuration...");
-		if (!config.tags) {
-			config.tags = [];
-		}
-		if (!config.tags.includes(options.a)) {
-			config.tags = Array.from(new Set([...config.tags, ...options.a]))
-			console.log(config.tags)
-			fs.writeFileSync(fluxPath + FLUX_CONFIG_PATH, JSON.stringify(config, null, 4));
-			console.log(`Tag "${options.a}" added to configuration.`);
+	if (!editableKeys.includes(key)) {
+		console.log(`Invalid config key.\nEditable keys are: ${editableKeys.join(', ')}`);
+		return;
+	}
+
+	// privacy
+	if (key === "hideWorkingDir") {
+		config.privacy.hideWorkingDir = value === "true";
+	}
+	if (key === "hideBranchName") {
+		config.privacy.hideBranchName = value === "true";
+	}
+	if (key === "hideUncommittedChanges") {
+		config.privacy.hideUncommittedChanges = value === "true";
+	}
+
+	// search
+	if (key === "resultLimit") {
+		const limit = parseInt(value, 10);
+		if (!isNaN(limit)) {
+			config.search.resultLimit = limit;
 		} else {
-			console.log(`Tag "${options.a}" already exists in configuration.`);
+			console.log("Invalid value for resultLimit. Please provide a number.");
+			return;
+		}
+	}
+	if (key === "threshold") {
+		const threshold = parseFloat(value);
+		if (!isNaN(threshold)) {
+			if (config.search && config.search.fuseOptions) {
+				config.search.fuseOptions.threshold = threshold;
+			}
+		} else {
+			console.log("Invalid value for threshold. Please provide a number.");
+			return;
 		}
 	}
 
-	if (options.r) {
-		console.log("Removing tag(s) from configuration...");
-		for (const removeTag of options.r) {
-			if (config.tags && config.tags.includes(removeTag)) {
-				config.tags = config.tags.filter(tag => tag !== removeTag);
-				fs.writeFileSync(fluxPath + FLUX_CONFIG_PATH, JSON.stringify(config, null, 4));
-				console.log(`Tag "${removeTag}" removed from configuration.`);
-			} else {
-				console.log(`Tag "${removeTag}" does not exist in configuration.`);
-			}
+	if (key === "includeScore") {
+		if (config.search && config.search.fuseOptions) {
+			config.search.fuseOptions.includeScore = value === "true";
 		}
 	}
+
+	if (key === "defaultFocusDuration") {
+		const duration = parseInt(value, 10);
+		if (!isNaN(duration)) {
+			config.defaultFocusDuration = duration;
+		} else {
+			console.log("Invalid value for defaultFocusDuration. Please provide a number.");
+			return;
+		}
+	}
+
+	fs.writeFileSync(fluxPath + FLUX_CONFIG_PATH, JSON.stringify(config, null, 4));
+
+	console.log("Config updated successfully.");
 }

@@ -38,4 +38,5 @@ export type BrainDumpOptions = {
 	notes?: boolean;
 	ideas?: boolean;
 	tasks?: boolean;
+	tag?: string;
 }

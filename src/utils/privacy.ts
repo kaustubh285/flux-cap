@@ -37,6 +37,9 @@ export function getCurrentBranch(config: FluxConfig): string | null {
 export function getTags(options: BrainDumpOptions, config: FluxConfig) {
 
 	let tags: string[] = [];
+	if (options.tag) {
+		tags.push(options.tag);
+	}
 	let optionTags = Object.keys(options).filter(key => options[key as keyof BrainDumpOptions] === true);
 
 	if (!config.tags) {
