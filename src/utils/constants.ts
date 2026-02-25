@@ -30,7 +30,7 @@ export const FLUX_DEFAULT_CONFIG: FluxConfig = {
 			includeScore: true
 		}
 	},
-	tags: ["notes", "ideas", "tasks"],
+	tags: ["notes", "ideas", "tasks", "bugs", "links", "imporatant"],
 };
 
 export const FLUX_DEFAULT_BRAIN_DUMP_CONTENT = {

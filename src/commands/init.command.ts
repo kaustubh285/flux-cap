@@ -3,7 +3,7 @@ import { FLUX_BRAIN_DUMP_PATH, FLUX_CONFIG_PATH, FLUX_DEFAULT_CONFIG, FLUX_FOLDE
 import { createIfNotExists, getFluxPath } from "../utils/";
 import inquirer from "inquirer";
 
-export async function initFluxCommand() {
+export async function initFluxCommand(options: { yes?: boolean }) {
 	console.log("Initializing Flux Capacitor...");
 
 	// CRITICAL SECTION
@@ -16,27 +16,41 @@ export async function initFluxCommand() {
 
 		// Check if config.json exists
 		const config = FLUX_DEFAULT_CONFIG
-
-		const answers = await inquirer.prompt([
-			{
-				type: 'confirm',
-				name: 'includeWorkingDir',
-				message: 'Include your current working directory in logs?',
-				default: true
-			},
-			{
-				type: 'confirm',
-				name: 'includeBranch',
-				message: 'Include your git branch name in logs?',
-				default: true
-			},
-			{
-				type: 'confirm',
-				name: 'includeUncommitted',
-				message: 'Include uncommitted git changes in logs?',
-				default: true
+		let answers: {
+			includeWorkingDir: any;
+			includeBranch: any;
+			includeUncommitted: any;
+		}
+		if (options.yes) {
+			console.log("Accepting all default options for initialization...");
+			answers = {
+				includeWorkingDir: true,
+				includeBranch: true,
+				includeUncommitted: true
 			}
-		]);
+		}
+		else {
+			answers = await inquirer.prompt([
+				{
+					type: 'confirm',
+					name: 'includeWorkingDir',
+					message: 'Include your current working directory in logs?',
+					default: true
+				},
+				{
+					type: 'confirm',
+					name: 'includeBranch',
+					message: 'Include your git branch name in logs?',
+					default: true
+				},
+				{
+					type: 'confirm',
+					name: 'includeUncommitted',
+					message: 'Include uncommitted git changes in logs?',
+					default: true
+				}
+			]);
+		}
 
 		config.privacy.hideWorkingDir = !answers.includeWorkingDir;
 		config.privacy.hideBranchName = !answers.includeBranch;
