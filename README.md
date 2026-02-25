@@ -42,13 +42,16 @@ flux dump -t "refactor payment processing logic" # Tasks
 ```
 
 ### 3. Search your brain dumps
+
+![https://github.com/kaustubh285/flux-cap/tree/main/images/v0.6-search-output.png](https://github.com/kaustubh285/flux-cap/tree/main/images/v0.6-search-output.png)
+
 ```bash
 # Search with a query
-flux search "auth"
+flux search auth
 
 # Search by tags (when implemented in search)
-flux search "ideas"
-flux search "tasks"
+flux search ideas
+flux search tasks
 
 # List recent dumps (no query)
 flux search
@@ -94,7 +97,10 @@ flux search
 |---------|-------------|---------|
 | `flux init` | Initialize flux-cap with privacy setup | `flux init` |
 | `flux dump <message...>` | Capture a brain dump | `flux dump "fix the bug in auth.ts"` |
-| `flux dump -i <message...>` | Capture an idea | `flux dump -i "add keyboard shortcuts"` |
+| `flux dump -i <message...>` | Capture important | `flux dump -i "add keyboard shortcuts"` |
+| `flux dump -d <message...>` | Capture an idea | `flux dump -d "a new cli tool project"` |
+| `flux dump -l <message...>` | Capture a link | `flux dump -l "https://github.com/kaustubh285/flux-cap"` |
+| `flux dump -b <message...>` | Capture a bug | `flux dump -b "tsconfig mismatch"` |
 | `flux dump -n <message...>` | Capture a note | `flux dump -n "meeting notes from standup"` |
 | `flux dump -t <message...>` | Capture a task | `flux dump -t "refactor user authentication"` |
 | `flux dump -m` | Multiline input mode | `flux dump -m` |

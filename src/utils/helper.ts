@@ -38,76 +38,63 @@ function formatMessageForDisplay(message: string): string {
 export function displaySearchResults(results: Array<{ item: BrainDump, score?: number }>, query?: string) {
 	if (results.length === 0) {
 		if (query) {
-			console.log(`No brain dumps found matching "${query}"`);
+			console.log(`\n No brain dumps found matching "${query}"\n`);
 		} else {
-			console.log("No brain dumps found. Try 'flux dump' to create your first one!");
+			console.log("\nNo brain dumps found. Try 'flux dump' to create your first one!\n");
 		}
 		return;
 	}
 
-	const queryText = query ? ` for "${query}"` : '';
-	console.log(`\nFound ${results.length} brain dump${results.length === 1 ? '' : 's'}${queryText}:\n`);
+	const queryText = query ? ` matching "${query}"` : '';
+	console.log(`\n Found ${results.length} brain dump${results.length === 1 ? '' : 's'}${queryText}\n`);
+
+	const terminalWidth = process.stdout.columns || 100;
+	const indexWidth = results.length.toString().length + 2;
+	const idWidth = 10;
+	const scoreWidth = 8;
+	const timeWidth = 12;
 
 
-	const terminalWidth = process.stdout.columns || 80;
-	const maxIndexWidth = results.length.toString().length;
+	const header = `${'#'.padEnd(indexWidth)}${'ID'.padEnd(idWidth)}${'SCORE'.padEnd(scoreWidth)}${'TIME'.padEnd(timeWidth)}MESSAGE`;
+	console.log(`\x1b[90m${header}\x1b[0m`);
+	console.log(`\x1b[36m${'─'.repeat(Math.min(terminalWidth - 5, header.length))}\x1b[0m`);
 
 	results.forEach((result, index) => {
 		const dump = result.item;
 		const score = result.score?.toFixed(2) || '0.00';
 		const shortId = dump.id.substring(0, 8);
+		const timeAgo = getTimeAgo(new Date(dump.timestamp));
 
-
-		const indexStr = `${(index + 1).toString().padStart(maxIndexWidth)}`;
-		const scoreStr = `[${score}]`;
-		const idStr = `${shortId}`;
-
-		const headerLine = `${indexStr} ${idStr} ${scoreStr}`;
-		console.log(headerLine);
-
-		const messageIndent = ' '.repeat(maxIndexWidth + 1);
-
+		const indexStr = `${index + 1}.`.padEnd(indexWidth);
+		const idStr = `\x1b[33m#${shortId}\x1b[0m`.padEnd(idWidth + 9);
+		const scoreStr = `\x1b[90m[${score}]\x1b[0m`.padEnd(scoreWidth + 9);
+		const timeStr = `\x1b[90m${timeAgo}\x1b[0m`.padEnd(timeWidth + 9);
 
 		const lines = dump.message.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-		const availableWidth = terminalWidth - messageIndent.length - 2;
+		const firstLine = lines[0] || '(empty)';
 
-		if (lines.length === 0) {
-			console.log(`${messageIndent}(empty message)`);
-		} else {
-			lines.forEach((line, lineIndex) => {
-				if (lineIndex < 3) {
-					const truncatedLine = line.length > availableWidth
-						? line.substring(0, availableWidth - 3) + '...'
-						: line;
-					console.log(`${messageIndent}${truncatedLine}`);
-				}
+		console.log(`\n${indexStr}${idStr}${scoreStr}${timeStr}${firstLine}`);
+
+		const messageIndent = ' '.repeat(indexWidth + idWidth + scoreWidth + timeWidth);
+		if (lines.length > 1) {
+			lines.slice(1).forEach(line => {
+				console.log(`${messageIndent}${line}`);
 			});
-
-			if (lines.length > 3) {
-				console.log(`${messageIndent}... (+${lines.length - 3} more line${lines.length - 3 === 1 ? '' : 's'})`);
-			}
 		}
 
-		const contextInfo = [];
-		const date = new Date(dump.timestamp);
-		const timeAgo = getTimeAgo(date);
-		contextInfo.push('----------------');
-		contextInfo.push(`${timeAgo}`);
-		contextInfo.push('----------------');
-		contextInfo.push('\n');
+		if (dump?.tags?.length) {
+			const tagsLine = `[${dump.tags.join(', ')}]`;
+			console.log(`${messageIndent}\x1b[36m${tagsLine}\x1b[0m`); // Cyan for tags
+		}
+
 
 		if (dump.branch && dump.branch !== 'main') {
-			contextInfo.push(`${dump.branch}${dump.hasUncommittedChanges ? ' (uncommitted)' : ''}`);
+			const gitInfo = `${dump.branch}${dump.hasUncommittedChanges ? ' (uncommitted)' : ''}`;
+			console.log(`${messageIndent}\x1b[33m${gitInfo}\x1b[0m`);
 		}
-
-		if (contextInfo.length > 0) {
-			console.log(`${messageIndent}${contextInfo.join(' • ')}`);
-		}
-
-		console.log('');
 	});
 
-	console.log(`!! Use the 8-character ID (like ${results[0]?.item.id.substring(0, 8)}) to reference specific dumps\n`);
+	console.log(`\n\x1b[90m Tip: Use the 8-character ID to reference dumps (e.g., flux edit ${results[0]?.item.id.substring(0, 8)})\x1b[0m\n`);
 }
 
 

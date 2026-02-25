@@ -5,6 +5,6 @@ export function createFuseInstance(data: any[], config: FluxConfig) {
 	return new Fuse(data, {
 		keys: config.search.searchFields,
 		includeScore: config.search.fuseOptions?.includeScore || true,
-		threshold: config.search.fuseOptions?.threshold || 0.3,
+		threshold: config.search.fuseOptions?.threshold || 0.5,
 	})
 }
