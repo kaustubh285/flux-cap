@@ -42,13 +42,16 @@ flux dump -t "refactor payment processing logic" # Tasks
 ```
 
 ### 3. Search your brain dumps
+
+![https://github.com/kaustubh285/flux-cap/tree/main/images/v0.6-search-output.png](https://github.com/kaustubh285/flux-cap/tree/main/images/v0.6-search-output.png)
+
 ```bash
 # Search with a query
-flux search "auth"
+flux search auth
 
 # Search by tags (when implemented in search)
-flux search "ideas"
-flux search "tasks"
+flux search ideas
+flux search tasks
 
 # List recent dumps (no query)
 flux search
