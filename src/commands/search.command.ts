@@ -13,35 +13,37 @@ export async function searchBrainDumpCommand(query: string[]) {
 	let searchResults: Array<{ item: BrainDump, score?: number }> = [];
 	const allFilePaths = await getAllBrainDumpFilePaths(fluxPath);
 
-	for (const searchQuery of query) {
-		for await (const filePath of allFilePaths) {
-			const fileData: { dumps: BrainDump[] } = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-
-			if (searchQuery) {
+	if (combinedQuery) {
+		for (const searchQuery of query) {
+			for await (const filePath of allFilePaths) {
+				const fileData: { dumps: BrainDump[] } = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 				const fuse = createFuseInstance(fileData.dumps, config);
 				const results = fuse.search(searchQuery);
 				searchResults.push(...results);
-			} else {
-				const recentDumps = fileData.dumps
-					.filter(dump => dump && dump.message && dump.message.trim() !== '')
-					.map(dump => ({
-						item: dump,
-						score: 0,
-						timestamp: new Date(dump.timestamp).getTime()
-					}));
-
-				searchResults.push(...recentDumps);
 			}
 		}
-		if (searchQuery) {
-			searchResults.sort((a, b) => (a.score || 0) - (b.score || 0));
-		} else {
-			searchResults.sort((a, b) => {
-				const timeA = new Date(a.item.timestamp).getTime();
-				const timeB = new Date(b.item.timestamp).getTime();
-				return timeB - timeA;
-			});
+	}
+	else {
+		for await (const filePath of allFilePaths) {
+			const fileData: { dumps: BrainDump[] } = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+			const recentDumps = fileData.dumps
+				.filter(dump => dump && dump.message && dump.message.trim() !== '')
+				.map(dump => ({
+					item: dump,
+					score: 0,
+					timestamp: new Date(dump.timestamp).getTime()
+				}));
+			searchResults.push(...recentDumps);
 		}
+	}
+	if (combinedQuery) {
+		searchResults.sort((a, b) => (a.score || 0) - (b.score || 0));
+	} else {
+		searchResults.sort((a, b) => {
+			const timeA = new Date(a.item.timestamp).getTime();
+			const timeB = new Date(b.item.timestamp).getTime();
+			return timeB - timeA;
+		});
 	}
 
 
