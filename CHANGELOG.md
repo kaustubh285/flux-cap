@@ -1,5 +1,11 @@
 # @dev_desh/flux-cap
 
+## 0.7.0
+
+### Minor Changes
+
+- 953e5c9: Batch searches with combinedQuery and sort results
+
 ## 0.6.0
 
 ### Minor Changes
