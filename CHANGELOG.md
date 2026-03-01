@@ -4,6 +4,12 @@
 
 ### Patch Changes
 
+- c214a64: Add Biome config and format code
+
+## 0.7.1
+
+### Patch Changes
+
 - 084057b: [ImgBot] Optimize images
 
 ## 0.7.0
