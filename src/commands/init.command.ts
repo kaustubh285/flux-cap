@@ -1,7 +1,13 @@
 import fs from "fs";
-import { FLUX_BRAIN_DUMP_PATH, FLUX_CONFIG_PATH, FLUX_DEFAULT_CONFIG, FLUX_FOLDER_PATH, FLUX_SESSION_PATH } from "../utils/constants";
-import { createIfNotExists, getFluxPath } from "../utils/";
 import inquirer from "inquirer";
+import { createIfNotExists, getFluxPath } from "../utils/";
+import {
+	FLUX_BRAIN_DUMP_PATH,
+	FLUX_CONFIG_PATH,
+	FLUX_DEFAULT_CONFIG,
+	FLUX_FOLDER_PATH,
+	FLUX_SESSION_PATH,
+} from "../utils/constants";
 
 export async function initFluxCommand(options: { yes?: boolean }) {
 	console.log("Initializing Flux Capacitor...");
@@ -9,46 +15,44 @@ export async function initFluxCommand(options: { yes?: boolean }) {
 	// CRITICAL SECTION
 	try {
 		// Check if .flux folder exists
-		await createIfNotExists(FLUX_FOLDER_PATH, 'directory');
-		await createIfNotExists(FLUX_BRAIN_DUMP_PATH, 'directory');
-		await createIfNotExists(FLUX_SESSION_PATH, 'directory');
-
+		await createIfNotExists(FLUX_FOLDER_PATH, "directory");
+		await createIfNotExists(FLUX_BRAIN_DUMP_PATH, "directory");
+		await createIfNotExists(FLUX_SESSION_PATH, "directory");
 
 		// Check if config.json exists
-		const config = FLUX_DEFAULT_CONFIG
+		const config = FLUX_DEFAULT_CONFIG;
 		let answers: {
 			includeWorkingDir: any;
 			includeBranch: any;
 			includeUncommitted: any;
-		}
+		};
 		if (options.yes) {
 			console.log("Accepting all default options for initialization...");
 			answers = {
 				includeWorkingDir: true,
 				includeBranch: true,
-				includeUncommitted: true
-			}
-		}
-		else {
+				includeUncommitted: true,
+			};
+		} else {
 			answers = await inquirer.prompt([
 				{
-					type: 'confirm',
-					name: 'includeWorkingDir',
-					message: 'Include your current working directory in logs?',
-					default: true
+					type: "confirm",
+					name: "includeWorkingDir",
+					message: "Include your current working directory in logs?",
+					default: true,
 				},
 				{
-					type: 'confirm',
-					name: 'includeBranch',
-					message: 'Include your git branch name in logs?',
-					default: true
+					type: "confirm",
+					name: "includeBranch",
+					message: "Include your git branch name in logs?",
+					default: true,
 				},
 				{
-					type: 'confirm',
-					name: 'includeUncommitted',
-					message: 'Include uncommitted git changes in logs?',
-					default: true
-				}
+					type: "confirm",
+					name: "includeUncommitted",
+					message: "Include uncommitted git changes in logs?",
+					default: true,
+				},
 			]);
 		}
 
@@ -56,62 +60,67 @@ export async function initFluxCommand(options: { yes?: boolean }) {
 		config.privacy.hideBranchName = !answers.includeBranch;
 		config.privacy.hideUncommittedChanges = !answers.includeUncommitted;
 
+		await createIfNotExists(
+			FLUX_CONFIG_PATH,
+			"file",
+			JSON.stringify(config, null, 4),
+		);
 
-
-		await createIfNotExists(FLUX_CONFIG_PATH, 'file', JSON.stringify(config, null, 4));
-
-		console.log("If you want to customize your configuration, you can edit the config.json file located in the .flux directory.");
-	}
-	catch (error) {
+		console.log(
+			"If you want to customize your configuration, you can edit the config.json file located in the .flux directory.",
+		);
+	} catch (error) {
 		console.error("Error during initialization:", error);
-		process.exit(1)
+		process.exit(1);
 	}
 
 	try {
 		// NON-CRITICAL SECTION
 		// If a git repo, add it to gitignore
-		if (fs.existsSync('.git/')) {
+		if (fs.existsSync(".git/")) {
 			console.log("Git repository detected.");
-		}
-		else {
+		} else {
 			console.log("Not a git repository. Skipping git integration.");
 		}
 
-		if (fs.existsSync('.gitignore')) {
+		if (fs.existsSync(".gitignore")) {
 			console.log("Gitignore file exists");
-			const gitignoreContent = fs.readFileSync('.gitignore', 'utf8')
+			const gitignoreContent = fs.readFileSync(".gitignore", "utf8");
 
 			if (gitignoreContent.includes(FLUX_FOLDER_PATH)) {
 				console.log(".flux is already in .gitignore");
+			} else {
+				fs.appendFileSync(".gitignore", `\n${FLUX_FOLDER_PATH}`);
 			}
-			else {
-				fs.appendFileSync('.gitignore', `\n${FLUX_FOLDER_PATH}`);
-			}
-		}
-		else {
-			fs.writeFileSync('.gitignore', '.flux');
+		} else {
+			fs.writeFileSync(".gitignore", ".flux");
 			console.log("Created .gitignore file.");
 		}
-	}
-	catch (error) {
-		console.error(`Error during git setup: ${error}. \n You may need to manually add .flux/ to your .gitignore file.`);
+	} catch (error) {
+		console.error(
+			`Error during git setup: ${error}. \n You may need to manually add .flux/ to your .gitignore file.`,
+		);
 	}
 
-	console.log(`Flux Cap folder structure created at ${FLUX_FOLDER_PATH}, with cwd as ${process.cwd()}`);
+	console.log(
+		`Flux Cap folder structure created at ${FLUX_FOLDER_PATH}, with cwd as ${process.cwd()}`,
+	);
 	console.log("Flux Capacitor initialized successfully!");
 }
 
-
 export const resetFluxCommand = async () => {
 	console.log("Resetting Flux Capacitor...");
-	const fluxPath = await getFluxPath() + FLUX_FOLDER_PATH
+	const fluxPath = (await getFluxPath()) + FLUX_FOLDER_PATH;
 
-	const { confirmed } = await inquirer.prompt([{
-		type: 'confirm',
-		name: 'confirmed',
-		message: 'Are you sure? This will delete all your brain dumps and sessions.',
-		default: false
-	}]);
+	const { confirmed } = await inquirer.prompt([
+		{
+			type: "confirm",
+			name: "confirmed",
+			message:
+				"Are you sure? This will delete all your brain dumps and sessions.",
+			default: false,
+		},
+	]);
 
 	if (!confirmed) {
 		console.log("Reset cancelled.");
@@ -122,15 +131,13 @@ export const resetFluxCommand = async () => {
 		if (fs.existsSync(fluxPath)) {
 			fs.rmSync(fluxPath, { recursive: true, force: true });
 			console.log("Removed .flux directory and all its contents.");
-		}
-		else {
+		} else {
 			console.log("Flux Capacitor is not initialized in this repository.");
 		}
-	}
-	catch (error) {
+	} catch (error) {
 		console.error("Error during reset:", error);
-		process.exit(1)
+		process.exit(1);
 	}
 
 	console.log("Flux Capacitor reset successfully!");
-}
+};

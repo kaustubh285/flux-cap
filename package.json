@@ -1,52 +1,56 @@
 {
-	"name": "@dev_desh/flux-cap",
-	"type": "module",
-	"version": "0.7.0",
-	"description": "Git-aware CLI context manager for ADHD developers",
-	"bin": {
-		"flux": "./dist/index.js"
-	},
-	"files": [
-		"dist/**/*",
-		"README.md",
-		"LICENSE"
-	],
-	"scripts": {
-		"build": "bun build src/index.ts --outdir dist --target node --format esm",
-		"dev": "bun run src/index.ts",
-		"prepublishOnly": "bun run build",
-		"publish": "npm publish --access=public",
-		"local-install": "bun run build && npm link",
-		"local-uninstall": "npm unlink -g flux-cap",
-		"local-reinstall": "bun run local-uninstall && bun run local-install",
-		"changeset": "changeset",
-		"changeset:add": "changeset add",
-		"changeset:status": "changeset status",
-		"changeset:version": "changeset version",
-		"changeset:publish": "changeset publish"
-	},
-	"engines": {
-		"node": ">=18.0.0"
-	},
-	"keywords": [
-		"cli",
-		"productivity",
-		"adhd",
-		"git",
-		"context-switching",
-		"brain-dump",
-		"developer-tools"
-	],
-	"dependencies": {
-		"inquirer": "^13.2.5"
-	},
-	"devDependencies": {
-		"@changesets/cli": "^2.29.8",
-		"@types/inquirer": "^9.0.9"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/kaustubh285/flux-cap"
-	},
-	"license": "MIT"
+    "name": "@dev_desh/flux-cap",
+    "type": "module",
+    "version": "0.7.0",
+    "description": "Git-aware CLI context manager for ADHD developers",
+    "bin": {
+        "flux": "./dist/index.js"
+    },
+    "files": [
+        "dist/**/*",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "build": "bun build src/index.ts --outdir dist --target node --format esm",
+        "dev": "bun run src/index.ts",
+        "prepublishOnly": "bun run build",
+        "publish": "npm publish --access=public",
+        "local-install": "bun run build && npm link",
+        "local-uninstall": "npm unlink -g flux-cap",
+        "local-reinstall": "bun run local-uninstall && bun run local-install",
+        "changeset": "changeset",
+        "changeset:add": "changeset add",
+        "changeset:status": "changeset status",
+        "changeset:version": "changeset version",
+        "changeset:publish": "changeset publish",
+        "format": "bunx --bun @biomejs/biome check --write"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "keywords": [
+        "cli",
+        "productivity",
+        "adhd",
+        "git",
+        "context-switching",
+        "brain-dump",
+        "developer-tools"
+    ],
+    "dependencies": {
+        "commander": "^14.0.3",
+        "fuse.js": "^7.1.0",
+        "inquirer": "^13.2.5"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "2.4.4",
+        "@changesets/cli": "^2.29.8",
+        "@types/inquirer": "^9.0.9"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kaustubh285/flux-cap"
+    },
+    "license": "MIT"
 }

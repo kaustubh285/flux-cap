@@ -1,26 +1,37 @@
+import { editor } from "@inquirer/prompts";
 import { randomUUID } from "crypto";
 import type { BrainDump, BrainDumpOptions, FluxConfig } from "../types";
+import {
+	createBrainDumpFileIfNotExists,
+	getConfigFile,
+	getCurrentBranch,
+	getFluxPath,
+	getGitUncommittedChanges,
+	getMonthString,
+	getTags,
+	getWorkingDir,
+} from "../utils/";
 import { FLUX_BRAIN_DUMP_PATH, FLUX_CONFIG_PATH } from "../utils/constants";
-import { createBrainDumpFileIfNotExists, getConfigFile, getCurrentBranch, getFluxPath, getGitUncommittedChanges, getMonthString, getTags, getWorkingDir } from "../utils/";
-import { editor } from '@inquirer/prompts';
 
-
-export async function handleBrainDump(message: string[], options: BrainDumpOptions) {
+export async function handleBrainDump(
+	message: string[],
+	options: BrainDumpOptions,
+) {
 	try {
 		let finalMessage: string;
 
 		if (options.multiline) {
-			console.log('Opening editor for multiline input...');
-			const initialText = message ? message.join(' ') : '';
+			console.log("Opening editor for multiline input...");
+			const initialText = message ? message.join(" ") : "";
 
 			const multilineInput = await editor({
-				message: 'Enter your brain dump (save & exit when done):',
+				message: "Enter your brain dump (save & exit when done):",
 				default: initialText,
-				waitForUserInput: false
+				waitForUserInput: false,
 			});
 
 			if (!multilineInput.trim()) {
-				console.log('Brain dump cancelled - no content provided');
+				console.log("Brain dump cancelled - no content provided");
 				return;
 			}
 
@@ -30,23 +41,25 @@ export async function handleBrainDump(message: string[], options: BrainDumpOptio
 				console.log('Please provide a message: flux dump "your message"');
 				return;
 			}
-			finalMessage = message.join(' ');
+			finalMessage = message.join(" ");
 		}
 
 		await brainDumpAddCommand(finalMessage, options);
-
 	} catch (error) {
-		console.error('Error creating brain dump:', error instanceof Error ? error.message : 'Unknown error');
+		console.error(
+			"Error creating brain dump:",
+			error instanceof Error ? error.message : "Unknown error",
+		);
 		process.exit(1);
 	}
 }
 
-
-export async function brainDumpAddCommand(message: string, options: BrainDumpOptions = {}) {
-	const fluxPath = await getFluxPath()
+export async function brainDumpAddCommand(
+	message: string,
+	options: BrainDumpOptions = {},
+) {
+	const fluxPath = await getFluxPath();
 	const fs = await import("fs");
-
-
 
 	console.log("Creating brain dump...");
 
@@ -54,11 +67,10 @@ export async function brainDumpAddCommand(message: string, options: BrainDumpOpt
 	await createBrainDumpFileIfNotExists(monthString, fluxPath);
 
 	const config = await getConfigFile(fluxPath);
-	const workingDir = await getWorkingDir(config)
-	const branch = getCurrentBranch(config)
+	const workingDir = await getWorkingDir(config);
+	const branch = getCurrentBranch(config);
 	const hasUncommittedChanges = getGitUncommittedChanges(config);
 	const tags = getTags(options, config);
-
 
 	const newDump: BrainDump = {
 		id: randomUUID(),
@@ -67,21 +79,28 @@ export async function brainDumpAddCommand(message: string, options: BrainDumpOpt
 		workingDir,
 		branch,
 		hasUncommittedChanges,
-		tags
+		tags,
 	};
 
-	const data: { dumps: BrainDump[] } = JSON.parse(fs.readFileSync(`${fluxPath}${FLUX_BRAIN_DUMP_PATH}/${monthString}.json`, 'utf8'));
+	const data: { dumps: BrainDump[] } = JSON.parse(
+		fs.readFileSync(
+			`${fluxPath}${FLUX_BRAIN_DUMP_PATH}/${monthString}.json`,
+			"utf8",
+		),
+	);
 
 	config.sorted ? data.dumps.unshift(newDump) : data.dumps.push(newDump);
 
-	fs.writeFileSync(`${fluxPath}${FLUX_BRAIN_DUMP_PATH}/${monthString}.json`, JSON.stringify(data, null, 2));
+	fs.writeFileSync(
+		`${fluxPath}${FLUX_BRAIN_DUMP_PATH}/${monthString}.json`,
+		JSON.stringify(data, null, 2),
+	);
 
-	const displayMessage = message.length > 50
-		? message.substring(0, 47) + "..."
-		: message;
+	const displayMessage =
+		message.length > 50 ? message.substring(0, 47) + "..." : message;
 
-	const preview = message.includes('\n')
-		? `${message.split('\n')[0]}... (multiline)`
+	const preview = message.includes("\n")
+		? `${message.split("\n")[0]}... (multiline)`
 		: displayMessage;
 
 	console.log(`✅ Brain dump saved: "${preview}"`);

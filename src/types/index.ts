@@ -9,15 +9,15 @@ export type FluxConfig = {
 		hideWorkingDir: boolean;
 		hideBranchName: boolean;
 		hideUncommittedChanges: boolean;
-	},
+	};
 	search: {
 		searchFields: ("message" | "workingDir" | "branch" | "tags" | "id")[];
 		resultLimit: number | null;
 		fuseOptions?: {
-			threshold: number,
-			includeScore: boolean
-		}
-	},
+			threshold: number;
+			includeScore: boolean;
+		};
+	};
 	// ALL optional fields below this line - 24/02/26 - v0.3.0
 	tags?: string[];
 };
@@ -28,10 +28,9 @@ export type BrainDump = {
 	message: string;
 	workingDir?: string;
 	branch?: string | null;
-	tags?: string[],
+	tags?: string[];
 	hasUncommittedChanges?: boolean;
-}
-
+};
 
 export type BrainDumpOptions = {
 	multiline?: boolean;
@@ -39,4 +38,4 @@ export type BrainDumpOptions = {
 	ideas?: boolean;
 	tasks?: boolean;
 	tag?: string;
-}
+};

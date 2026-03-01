@@ -3,16 +3,18 @@ import { getConfigFile, getFluxPath } from "../utils/lib";
 
 export async function configCommand(data: string[]) {
 	console.log(`Updating key: ${data[0]} to ${data[1]}`);
-	const fluxPath = await getFluxPath()
+	const fluxPath = await getFluxPath();
 	const fs = await import("fs");
 	const config = await getConfigFile(fluxPath);
 
 	if (data.length < 2) {
-		console.log("Please provide a key and value to update the config. Example: flux config --add-tags notes ideas tasks");
+		console.log(
+			"Please provide a key and value to update the config. Example: flux config --add-tags notes ideas tasks",
+		);
 		return;
 	}
 	const key = data[0];
-	const value = data.slice(1).join(' ');
+	const value = data.slice(1).join(" ");
 	const editableKeys = [
 		"hideWorkingDir",
 		"hideBranchName",
@@ -20,11 +22,13 @@ export async function configCommand(data: string[]) {
 		"resultLimit",
 		"threshold",
 		"includeScore",
-		"defaultFocusDuration"
-	]
+		"defaultFocusDuration",
+	];
 
 	if (!editableKeys.includes(key)) {
-		console.log(`Invalid config key.\nEditable keys are: ${editableKeys.join(', ')}`);
+		console.log(
+			`Invalid config key.\nEditable keys are: ${editableKeys.join(", ")}`,
+		);
 		return;
 	}
 
@@ -72,12 +76,17 @@ export async function configCommand(data: string[]) {
 		if (!isNaN(duration)) {
 			config.defaultFocusDuration = duration;
 		} else {
-			console.log("Invalid value for defaultFocusDuration. Please provide a number.");
+			console.log(
+				"Invalid value for defaultFocusDuration. Please provide a number.",
+			);
 			return;
 		}
 	}
 
-	fs.writeFileSync(fluxPath + FLUX_CONFIG_PATH, JSON.stringify(config, null, 4));
+	fs.writeFileSync(
+		fluxPath + FLUX_CONFIG_PATH,
+		JSON.stringify(config, null, 4),
+	);
 
 	console.log("Config updated successfully.");
 }

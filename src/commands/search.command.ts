@@ -1,37 +1,48 @@
-import Fuse from "fuse.js"
-import { displaySearchResults, FLUX_BRAIN_DUMP_PATH, getAllBrainDumpFilePaths, getConfigFile, getFluxPath, getMonthString, searchResultFormat } from "../utils";
-import { createFuseInstance } from "../utils/fuse.instance";
-import type { BrainDump } from "../types";
 import fs from "fs";
+import Fuse from "fuse.js";
+import type { BrainDump } from "../types";
+import {
+	displaySearchResults,
+	FLUX_BRAIN_DUMP_PATH,
+	getAllBrainDumpFilePaths,
+	getConfigFile,
+	getFluxPath,
+	getMonthString,
+	searchResultFormat,
+} from "../utils";
+import { createFuseInstance } from "../utils/fuse.instance";
 
 export async function searchBrainDumpCommand(query: string[]) {
 	console.log("Searching all brain dumps...");
-	const fluxPath = await getFluxPath()
+	const fluxPath = await getFluxPath();
 	const config = await getConfigFile(fluxPath);
-	const combinedQuery = query.join(' ').trim();
+	const combinedQuery = query.join(" ").trim();
 
-	let searchResults: Array<{ item: BrainDump, score?: number }> = [];
+	const searchResults: Array<{ item: BrainDump; score?: number }> = [];
 	const allFilePaths = await getAllBrainDumpFilePaths(fluxPath);
 
 	if (combinedQuery) {
 		for (const searchQuery of query) {
 			for await (const filePath of allFilePaths) {
-				const fileData: { dumps: BrainDump[] } = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+				const fileData: { dumps: BrainDump[] } = JSON.parse(
+					fs.readFileSync(filePath, "utf8"),
+				);
 				const fuse = createFuseInstance(fileData.dumps, config);
 				const results = fuse.search(searchQuery);
 				searchResults.push(...results);
 			}
 		}
-	}
-	else {
+	} else {
 		for await (const filePath of allFilePaths) {
-			const fileData: { dumps: BrainDump[] } = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+			const fileData: { dumps: BrainDump[] } = JSON.parse(
+				fs.readFileSync(filePath, "utf8"),
+			);
 			const recentDumps = fileData.dumps
-				.filter(dump => dump && dump.message && dump.message.trim() !== '')
-				.map(dump => ({
+				.filter((dump) => dump && dump.message && dump.message.trim() !== "")
+				.map((dump) => ({
 					item: dump,
 					score: 0,
-					timestamp: new Date(dump.timestamp).getTime()
+					timestamp: new Date(dump.timestamp).getTime(),
 				}));
 			searchResults.push(...recentDumps);
 		}
@@ -46,15 +57,14 @@ export async function searchBrainDumpCommand(query: string[]) {
 		});
 	}
 
-
-
 	const resultLimit = config?.search?.resultLimit || (combinedQuery ? 10 : 5);
 	const limitedResults = searchResults.slice(0, resultLimit);
 
 	if (searchResults.length > limitedResults.length) {
-		console.log(`\n(Showing ${limitedResults.length} of ${searchResults.length} results)`);
+		console.log(
+			`\n(Showing ${limitedResults.length} of ${searchResults.length} results)`,
+		);
 	}
 
 	displaySearchResults(limitedResults, combinedQuery || undefined);
-
 }

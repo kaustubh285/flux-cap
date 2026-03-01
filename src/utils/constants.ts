@@ -1,4 +1,4 @@
-import packageJson from "../../package.json"
+import packageJson from "../../package.json";
 
 import type { FluxConfig } from "../types";
 
@@ -27,12 +27,12 @@ export const FLUX_DEFAULT_CONFIG: FluxConfig = {
 		resultLimit: 10,
 		fuseOptions: {
 			threshold: 0.3,
-			includeScore: true
-		}
+			includeScore: true,
+		},
 	},
 	tags: ["notes", "ideas", "tasks", "bugs", "links", "imporatant"],
 };
 
 export const FLUX_DEFAULT_BRAIN_DUMP_CONTENT = {
 	fluxVersion: "0.0.1",
-}
+};
