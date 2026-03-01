@@ -4,15 +4,24 @@ import type { BrainDump } from "../types";
 export function getMonthString(): string {
 	const currentDate = new Date();
 	const year = currentDate.getFullYear();
-	const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+	const month = String(currentDate.getMonth() + 1).padStart(2, "0");
 	return `${year}-${month}`;
 }
 
-
-export function searchResultFormat({ message, timestamp, score, index }: { message: string, timestamp: string, score?: string, index?: number }): string {
+export function searchResultFormat({
+	message,
+	timestamp,
+	score,
+	index,
+}: {
+	message: string;
+	timestamp: string;
+	score?: string;
+	index?: number;
+}): string {
 	const formattedTimestamp = new Date(timestamp).toLocaleString();
-	const indexStr = index !== undefined ? `${index + 1}.` : '';
-	const scoreStr = `[${score || '0.00'}]`;
+	const indexStr = index !== undefined ? `${index + 1}.` : "";
+	const scoreStr = `[${score || "0.00"}]`;
 	const timeStr = `[${formattedTimestamp}]`;
 
 	const formattedMessage = formatMessageForDisplay(message);
@@ -21,32 +30,45 @@ export function searchResultFormat({ message, timestamp, score, index }: { messa
 }
 
 function formatMessageForDisplay(message: string): string {
-	const lines = message.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+	const lines = message
+		.split("\n")
+		.map((line) => line.trim())
+		.filter((line) => line.length > 0);
 
 	if (lines.length <= 1) {
 		const singleLine = lines[0] || message;
-		return singleLine.length > 80 ? singleLine.substring(0, 77) + '...' : singleLine;
+		return singleLine.length > 80
+			? singleLine.substring(0, 77) + "..."
+			: singleLine;
 	}
 
 	const firstLine = lines[0];
-	const truncatedFirst = firstLine?.length > 60 ? firstLine?.substring(0, 57) + '...' : firstLine;
+	const truncatedFirst =
+		firstLine?.length > 60 ? firstLine?.substring(0, 57) + "..." : firstLine;
 	const remainingCount = lines.length - 1;
 
-	return `${truncatedFirst} (+${remainingCount} more line${remainingCount === 1 ? '' : 's'})`;
+	return `${truncatedFirst} (+${remainingCount} more line${remainingCount === 1 ? "" : "s"})`;
 }
 
-export function displaySearchResults(results: Array<{ item: BrainDump, score?: number }>, query?: string) {
+export function displaySearchResults(
+	results: Array<{ item: BrainDump; score?: number }>,
+	query?: string,
+) {
 	if (results.length === 0) {
 		if (query) {
 			console.log(`\n No brain dumps found matching "${query}"\n`);
 		} else {
-			console.log("\nNo brain dumps found. Try 'flux dump' to create your first one!\n");
+			console.log(
+				"\nNo brain dumps found. Try 'flux dump' to create your first one!\n",
+			);
 		}
 		return;
 	}
 
-	const queryText = query ? ` matching "${query}"` : '';
-	console.log(`\n Found ${results.length} brain dump${results.length === 1 ? '' : 's'}${queryText}\n`);
+	const queryText = query ? ` matching "${query}"` : "";
+	console.log(
+		`\n Found ${results.length} brain dump${results.length === 1 ? "" : "s"}${queryText}\n`,
+	);
 
 	const terminalWidth = process.stdout.columns || 100;
 	const indexWidth = results.length.toString().length + 2;
@@ -54,14 +76,15 @@ export function displaySearchResults(results: Array<{ item: BrainDump, score?: n
 	const scoreWidth = 8;
 	const timeWidth = 12;
 
-
-	const header = `${'#'.padEnd(indexWidth)}${'ID'.padEnd(idWidth)}${'SCORE'.padEnd(scoreWidth)}${'TIME'.padEnd(timeWidth)}MESSAGE`;
+	const header = `${"#".padEnd(indexWidth)}${"ID".padEnd(idWidth)}${"SCORE".padEnd(scoreWidth)}${"TIME".padEnd(timeWidth)}MESSAGE`;
 	console.log(`\x1b[90m${header}\x1b[0m`);
-	console.log(`\x1b[36m${'─'.repeat(Math.min(terminalWidth - 5, header.length))}\x1b[0m`);
+	console.log(
+		`\x1b[36m${"─".repeat(Math.min(terminalWidth - 5, header.length))}\x1b[0m`,
+	);
 
 	results.forEach((result, index) => {
 		const dump = result.item;
-		const score = result.score?.toFixed(2) || '0.00';
+		const score = result.score?.toFixed(2) || "0.00";
 		const shortId = dump.id.substring(0, 8);
 		const timeAgo = getTimeAgo(new Date(dump.timestamp));
 
@@ -70,33 +93,38 @@ export function displaySearchResults(results: Array<{ item: BrainDump, score?: n
 		const scoreStr = `\x1b[90m[${score}]\x1b[0m`.padEnd(scoreWidth + 9);
 		const timeStr = `\x1b[90m${timeAgo}\x1b[0m`.padEnd(timeWidth + 9);
 
-		const lines = dump.message.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-		const firstLine = lines[0] || '(empty)';
+		const lines = dump.message
+			.split("\n")
+			.map((l) => l.trim())
+			.filter((l) => l.length > 0);
+		const firstLine = lines[0] || "(empty)";
 
 		console.log(`\n${indexStr}${idStr}${scoreStr}${timeStr}${firstLine}`);
 
-		const messageIndent = ' '.repeat(indexWidth + idWidth + scoreWidth + timeWidth);
+		const messageIndent = " ".repeat(
+			indexWidth + idWidth + scoreWidth + timeWidth,
+		);
 		if (lines.length > 1) {
-			lines.slice(1).forEach(line => {
+			lines.slice(1).forEach((line) => {
 				console.log(`${messageIndent}${line}`);
 			});
 		}
 
 		if (dump?.tags?.length) {
-			const tagsLine = `[${dump.tags.join(', ')}]`;
+			const tagsLine = `[${dump.tags.join(", ")}]`;
 			console.log(`${messageIndent}\x1b[36m${tagsLine}\x1b[0m`); // Cyan for tags
 		}
 
-
-		if (dump.branch && dump.branch !== 'main') {
-			const gitInfo = `${dump.branch}${dump.hasUncommittedChanges ? ' (uncommitted)' : ''}`;
+		if (dump.branch && dump.branch !== "main") {
+			const gitInfo = `${dump.branch}${dump.hasUncommittedChanges ? " (uncommitted)" : ""}`;
 			console.log(`${messageIndent}\x1b[33m${gitInfo}\x1b[0m`);
 		}
 	});
 
-	console.log(`\n\x1b[90m Tip: Use the 8-character ID to reference dumps (e.g., flux edit ${results[0]?.item.id.substring(0, 8)})\x1b[0m\n`);
+	console.log(
+		`\n\x1b[90m Tip: Use the 8-character ID to reference dumps (e.g., flux edit ${results[0]?.item.id.substring(0, 8)})\x1b[0m\n`,
+	);
 }
-
 
 function getTimeAgo(date: Date): string {
 	const now = new Date();

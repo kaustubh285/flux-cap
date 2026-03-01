@@ -2,7 +2,7 @@ import { getConfigFile } from "../utils";
 
 export async function versionOption() {
 	const config = await getConfigFile();
-	console.log(`flux-cap version: ${config?.fluxVersion || 'unknown'}`);
+	console.log(`flux-cap version: ${config?.fluxVersion || "unknown"}`);
 }
 
 export function helpOption() {
