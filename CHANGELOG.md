@@ -1,5 +1,11 @@
 # @dev_desh/flux-cap
 
+## 0.7.1
+
+### Patch Changes
+
+- 084057b: [ImgBot] Optimize images
+
 ## 0.7.0
 
 ### Minor Changes
